@@ -20,6 +20,7 @@ namespace SANWA.Utility.Config
         public string MappingData { get; set; }
         public string EFEMInterfaceConn { get; set; }
         public bool SaftyCheckByPass { get; set; }
+        public string AdminPassword { get; set; }
 
         public static SystemConfig Get()
         {
