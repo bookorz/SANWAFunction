@@ -78,7 +78,8 @@ namespace SANWA.Utility
 
         public enum EventType
         {
-            Complete
+            Complete,
+            All
         }
 
         /// <summary>
@@ -193,7 +194,7 @@ namespace SANWA.Utility
                     case "ASYST":
                         switch (evtType)
                         {
-                            case EventType.Complete:
+                            case EventType.All:
 
                                 Command = "EDER";
                                 if(state == ParamState.Enable)
@@ -204,6 +205,10 @@ namespace SANWA.Utility
                                 {
                                     parm = "OFF";
                                 }
+                                break;
+                            case EventType.Complete:
+                                Command = "ECS";
+                                parm = "P38=4";
                                 break;
                         }
                         break;

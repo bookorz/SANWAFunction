@@ -70,7 +70,7 @@ namespace SANWA.Utility
         private List<ReturnMessage> SmartTagCodeAnalysis(string Message)
         {
             List<ReturnMessage> result;
-           
+
 
             try
             {
@@ -79,10 +79,10 @@ namespace SANWA.Utility
                 r.NodeAdr = "00";
                 if (Message.IndexOf("CA") != -1)
                 {
-                   
+
                     r.Type = ReturnMessage.ReturnType.Excuted;
                     result.Add(r);
-                   
+
                 }
                 else if (Message.IndexOf("60") != -1)
                 {
@@ -96,8 +96,8 @@ namespace SANWA.Utility
                     else
                     {
                         r.Type = ReturnMessage.ReturnType.Excuted;
-                        
-                      
+
+
                     }
                     result.Add(r);
                 }
@@ -110,6 +110,12 @@ namespace SANWA.Utility
                         r.Value = "Check sum faild";
                         //r.Value = r.Value.Substring(0, Message.Length - 16);
                     }
+                    result.Add(r);
+                }
+                else
+                {
+                    r.CommandType = "GET";
+                    result.Add(r);
                 }
             }
             catch (Exception ex)
@@ -130,7 +136,7 @@ namespace SANWA.Utility
                 if (data.Equals(""))
                     continue;
                 lenResult++;
-                if (lenResult > 240-16)
+                if (lenResult > 240 - 16)
                     break;//超出資料範圍
                 try
                 {
@@ -307,7 +313,7 @@ namespace SANWA.Utility
                     }
                     ReturnMessage each = new ReturnMessage();
                     each.OrgMsg = Msg.Substring(Msg.IndexOf("$"));
-                    
+
                     each.NodeAdr = each.OrgMsg[1].ToString();
                     string[] content = each.OrgMsg.Replace("\r", "").Replace("\n", "").Substring(2).Split(':');
                     for (int i = 0; i < content.Length; i++)
@@ -604,7 +610,7 @@ namespace SANWA.Utility
                         switch (each.CommandType)
                         {
                             case "FSD2":
-                                switch (content[i].Substring(content[i].IndexOf("=")+1))
+                                switch (content[i].Substring(content[i].IndexOf("=") + 1))
                                 {
                                     case "F":
                                         each.Value += "1";
@@ -620,6 +626,7 @@ namespace SANWA.Utility
                                         break;
                                 }
                                 each.Type = ReturnMessage.ReturnType.Excuted;
+                                //each.CommandType = "GET";
                                 break;
                             case "FSD0":
                                 if (!each.Value.Equals(""))
@@ -627,11 +634,11 @@ namespace SANWA.Utility
                                     each.Value += ",";
                                 }
                                 each.Value += content[i];
-
+                                //each.CommandType = "GET";
                                 each.Type = ReturnMessage.ReturnType.Excuted;
                                 break;
                             default:
-
+                                
                                 switch (i)
                                 {
                                     case 0:
@@ -695,7 +702,7 @@ namespace SANWA.Utility
                                                 break;
 
                                             default:
-                                                
+
                                                 each.Command = content[i];
                                                 break;
                                         }
