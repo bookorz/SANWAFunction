@@ -77,7 +77,7 @@ namespace SANWA.Utility
                 result = new List<ReturnMessage>();
                 ReturnMessage r = new ReturnMessage();
                 r.NodeAdr = "00";
-                if (Message.IndexOf("CA") != -1)
+                if (Message.IndexOf("CA 00 00") != -1)
                 {
 
                     r.Type = ReturnMessage.ReturnType.Excuted;
