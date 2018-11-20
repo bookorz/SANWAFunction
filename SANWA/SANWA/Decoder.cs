@@ -77,14 +77,14 @@ namespace SANWA.Utility
                 result = new List<ReturnMessage>();
                 ReturnMessage r = new ReturnMessage();
                 r.NodeAdr = "00";
-                if (Message.IndexOf("CA 00 00") != -1)
+                if (Message.StartsWith("CA"))
                 {
 
                     r.Type = ReturnMessage.ReturnType.Excuted;
                     result.Add(r);
 
                 }
-                else if (Message.IndexOf("60") != -1)
+                else if (Message.StartsWith("60"))
                 {
                     if (Message.Replace(" 00", "").Length > 2)
                     {
