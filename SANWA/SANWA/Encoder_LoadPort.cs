@@ -58,6 +58,19 @@ namespace SANWA.Utility
             Disable
         }
 
+        public enum CassrtteSize
+        {
+            Cassette_8_Inch=0,
+            Cassette_4_Or_6_Inch=2,
+            Disable_SlotSensor_INX2200=4,
+            Disable_SlotSensor_INX2150 = 5
+        }
+
+        public enum TweekType
+        {
+            TweekDown,
+            TweekUp
+        }
         /// <summary>
         /// Wafer Sorting Type
         /// </summary>
@@ -221,6 +234,177 @@ namespace SANWA.Utility
                 throw new Exception(ex.ToString());
             }
             return CommandAssembly(Supplier, Command, Command+"_"+ parm);
+        }
+
+        public string SetCassetteSizeOption(CassrtteSize size)
+        {
+            string Command = string.Empty;
+            string parm = string.Empty;
+            try
+            {
+                switch (Supplier)
+                {
+                    case "ASYST":
+                        Command = "ECS";
+                        switch (size)
+                        {
+                            
+                            case CassrtteSize.Cassette_8_Inch:
+                                
+                                parm = "P39=0";
+                                break;
+                            case CassrtteSize.Cassette_4_Or_6_Inch:
+
+                                parm = "P39=2";
+                                break;
+                            case CassrtteSize.Disable_SlotSensor_INX2200:
+
+                                parm = "P39=4";
+                                break;
+                            case CassrtteSize.Disable_SlotSensor_INX2150:
+
+                                parm = "P39=5";
+                                break;
+                        }
+                        break;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            return CommandAssembly(Supplier, Command, Command + "_" + parm);
+        }
+
+        public string Tweek(TweekType type)
+        {
+            string Command = string.Empty;
+            string param = string.Empty;
+            try
+            {
+                switch (Supplier)
+                {
+                    case "ASYST":
+                        Command = "HCS";
+                        switch (type)
+                        {
+
+                            case TweekType.TweekDown:
+
+                                param = "TWEEKDN";
+                                break;
+                            case TweekType.TweekUp:
+
+                                param = "TWEEKUP";
+                                break;
+                        }
+                        break;
+                }
+               
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            return Command+" "+param+ "\r\n";
+        }
+
+        public string SetSlotOffset(string offset)
+        {
+            string Command = string.Empty;
+            string parm = string.Empty;
+            try
+            {
+                switch (Supplier)
+                {
+                    case "ASYST":
+                        Command = "ECS";
+                        parm = "P30="+offset;
+                        
+                        break;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            return Command+" "+parm;
+        }
+
+        public string SetWaferOffset(string offset)
+        {
+            string Command = string.Empty;
+            string parm = string.Empty;
+            try
+            {
+                switch (Supplier)
+                {
+                    case "ASYST":
+                        Command = "ECS";
+                        parm = "P31=" + offset;
+
+                        break;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            return Command + " " + parm;
+        }
+
+        public string SetSlotPitch(string pitch)
+        {
+            string Command = string.Empty;
+            string parm = string.Empty;
+            try
+            {
+                switch (Supplier)
+                {
+                    case "ASYST":
+                        Command = "ECS";
+                        parm = "P35=" + pitch;
+
+                        break;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            return Command + " " + parm;
+        }
+
+        public string SetTweekDistance(string distance)
+        {
+            string Command = string.Empty;
+            string parm = string.Empty;
+            try
+            {
+                switch (Supplier)
+                {
+                    case "ASYST":
+                        Command = "ECS";
+                        parm = "P36=" + distance;
+
+                        break;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            return Command + " " + parm;
         }
 
         /// <summary>

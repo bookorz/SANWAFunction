@@ -255,7 +255,7 @@ namespace SANWA.Utility
         private List<ReturnMessage> HSTCodeAnalysis(string Msg)
         {
             List<ReturnMessage> result;
-            string[] msgAry;
+            //string[] msgAry;
 
             try
             {
@@ -664,7 +664,7 @@ namespace SANWA.Utility
                                             case "FATAL":
                                             case "FAILED_SELF-TEST":
                                                 each.Type = ReturnMessage.ReturnType.Error;
-                                                //each.Command = content[i];
+                                                each.Command = content[i];
                                                 break;
 
                                             case "BUSY":
