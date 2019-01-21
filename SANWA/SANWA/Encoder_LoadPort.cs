@@ -60,9 +60,9 @@ namespace SANWA.Utility
 
         public enum CassrtteSize
         {
-            Cassette_8_Inch=0,
-            Cassette_4_Or_6_Inch=2,
-            Disable_SlotSensor_INX2200=4,
+            Cassette_8_Inch = 0,
+            Cassette_4_Or_6_Inch = 2,
+            Disable_SlotSensor_INX2200 = 4,
             Disable_SlotSensor_INX2150 = 5
         }
 
@@ -210,11 +210,11 @@ namespace SANWA.Utility
                             case EventType.All:
 
                                 Command = "EDER";
-                                if(state == ParamState.Enable)
+                                if (state == ParamState.Enable)
                                 {
                                     parm = "ON";
                                 }
-                                else if(state == ParamState.Disable)
+                                else if (state == ParamState.Disable)
                                 {
                                     parm = "OFF";
                                 }
@@ -227,13 +227,13 @@ namespace SANWA.Utility
                         break;
 
                 }
-                
+
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
             }
-            return CommandAssembly(Supplier, Command, Command+"_"+ parm);
+            return CommandAssembly(Supplier, Command, Command + "_" + parm);
         }
 
         public string SetCassetteSizeOption(CassrtteSize size)
@@ -248,9 +248,9 @@ namespace SANWA.Utility
                         Command = "ECS";
                         switch (size)
                         {
-                            
+
                             case CassrtteSize.Cassette_8_Inch:
-                                
+
                                 parm = "P39=0";
                                 break;
                             case CassrtteSize.Cassette_4_Or_6_Inch:
@@ -302,13 +302,13 @@ namespace SANWA.Utility
                         }
                         break;
                 }
-               
+
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
             }
-            return Command+" "+param+ "\r\n";
+            return Command + " " + param + "\r\n";
         }
 
         public string SetSlotOffset(string offset)
@@ -321,8 +321,8 @@ namespace SANWA.Utility
                 {
                     case "ASYST":
                         Command = "ECS";
-                        parm = "P30="+offset;
-                        
+                        parm = "P30=" + offset;
+
                         break;
 
                 }
@@ -332,7 +332,7 @@ namespace SANWA.Utility
             {
                 throw new Exception(ex.ToString());
             }
-            return Command+" "+parm;
+            return Command + " " + parm + "\r\n";
         }
 
         public string SetWaferOffset(string offset)
@@ -356,7 +356,7 @@ namespace SANWA.Utility
             {
                 throw new Exception(ex.ToString());
             }
-            return Command + " " + parm;
+            return Command + " " + parm + "\r\n";
         }
 
         public string SetSlotPitch(string pitch)
@@ -380,7 +380,7 @@ namespace SANWA.Utility
             {
                 throw new Exception(ex.ToString());
             }
-            return Command + " " + parm;
+            return Command + " " + parm + "\r\n";
         }
 
         public string SetTweekDistance(string distance)
@@ -404,7 +404,7 @@ namespace SANWA.Utility
             {
                 throw new Exception(ex.ToString());
             }
-            return Command + " " + parm;
+            return Command + " " + parm + "\r\n";
         }
 
         /// <summary>
@@ -1045,7 +1045,14 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Stop(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "Stop");
+            switch (Supplier)
+            {
+                case "ASYST":
+                    return "HCS STOP" + "\r\n";
+                default:
+                    return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "Stop");
+            }
+
         }
 
         /// <summary>
