@@ -609,6 +609,7 @@ namespace SANWA.Utility
                     {
                         switch (each.CommandType)
                         {
+                            
                             case "FSD2":
                                 switch (content[i].Substring(content[i].IndexOf("=") + 1))
                                 {
@@ -645,68 +646,99 @@ namespace SANWA.Utility
                                         each.CommandType = content[i];
                                         break;
                                     case 1:
-                                        switch (content[i])
+                                        if (each.CommandType.Equals("ECD"))
                                         {
-                                            case "ALARM":
-                                            case "ABORT_CAL":
-                                            case "ABORT_EMPTY_SLOT":
-                                            case "ABORT_HOME":
-                                            case "ABORT_LOCK":
-                                            case "ABORT_MAP":
-                                            case "ABORT_POS":
-                                            case "ABORT_SLOT":
-                                            case "ABORT_STAGE":
-                                            case "ABORT_TWEEKDN":
-                                            case "ABORT_TWEEKUP":
-                                            case "ABORT_UNLOCK":
-                                            case "ABORT_WAFER":
-                                            case "WARNING":
-                                            case "FATAL":
-                                            case "FAILED_SELF-TEST":
-                                                each.Type = ReturnMessage.ReturnType.Error;
-                                                each.Command = content[i];
-                                                break;
-
-                                            case "BUSY":
-                                            case "DENIED":
-                                            case "INVALID_ARG":
-                                            case "NO_POD":
-                                            case "NOT_READY":
-                                                each.Type = ReturnMessage.ReturnType.Abnormal;
-                                                break;
-
-                                            case "OK":
-                                                each.Type = ReturnMessage.ReturnType.Excuted;
-                                                break;
-
-                                            case "CMPL_CAL":
-                                            case "CMPL_LOCK":
-                                            case "CMPL_MAP":
-                                            case "CMPL_SELF-TEST":
-                                            case "CMPL_TWEEKDN":
-                                            case "CMPL_TWEEKUP":
-                                            case "CMPL_UNLOCK":
-                                            case "REACH_EMPTY_SLOT":
-                                            case "REACH_HOME":
-                                            case "REACH_POS":
-                                            case "REACH_SLOT":
-                                            case "REACH_STAGE":
-                                            case "REACH_WAFER":
-                                                each.Type = ReturnMessage.ReturnType.Finished;
-                                                break;
-
-                                            case "POD_ARRIVED":
-                                            case "POD_REMOVED":
-                                                each.Type = ReturnMessage.ReturnType.Event;
-                                                each.Command = content[i];
-                                                break;
-
-                                            default:
-
-                                                each.Command = content[i];
-                                                break;
+                                            each.CommandType = "ACK";
+                                            each.Type = ReturnMessage.ReturnType.Excuted;
+                                            string[] param = content[i].Split('=');
+                                            if (param.Length >= 2)
+                                            {
+                                                switch (param[0])
+                                                {                                                    
+                                                    case "P30":
+                                                        each.Command = "GetSlotOffset";
+                                                        break;
+                                                    case "P31":
+                                                        each.Command = "GetWaferOffset";
+                                                        break;
+                                                    case "P35":
+                                                        each.Command = "GetSlotPitch";
+                                                        break;
+                                                    case "P36":
+                                                        each.Command = "GetTweekDistance";
+                                                        break;
+                                                    case "P39":
+                                                        each.Command = "GetCassetteSize";
+                                                        break;
+                                                }
+                                                each.Value = param[1];
+                                            }
+                                           
                                         }
+                                        else
+                                        {
+                                            switch (content[i])
+                                            {
+                                                case "ALARM":
+                                                case "ABORT_CAL":
+                                                case "ABORT_EMPTY_SLOT":
+                                                case "ABORT_HOME":
+                                                case "ABORT_LOCK":
+                                                case "ABORT_MAP":
+                                                case "ABORT_POS":
+                                                case "ABORT_SLOT":
+                                                case "ABORT_STAGE":
+                                                case "ABORT_TWEEKDN":
+                                                case "ABORT_TWEEKUP":
+                                                case "ABORT_UNLOCK":
+                                                case "ABORT_WAFER":
+                                                case "WARNING":
+                                                case "FATAL":
+                                                case "FAILED_SELF-TEST":
+                                                    each.Type = ReturnMessage.ReturnType.Error;
+                                                    each.Command = content[i];
+                                                    break;
 
+                                                case "BUSY":
+                                                case "DENIED":
+                                                case "INVALID_ARG":
+                                                case "NO_POD":
+                                                case "NOT_READY":
+                                                    each.Type = ReturnMessage.ReturnType.Abnormal;
+                                                    break;
+
+                                                case "OK":
+                                                    each.Type = ReturnMessage.ReturnType.Excuted;
+                                                    break;
+
+                                                case "CMPL_CAL":
+                                                case "CMPL_LOCK":
+                                                case "CMPL_MAP":
+                                                case "CMPL_SELF-TEST":
+                                                case "CMPL_TWEEKDN":
+                                                case "CMPL_TWEEKUP":
+                                                case "CMPL_UNLOCK":
+                                                case "REACH_EMPTY_SLOT":
+                                                case "REACH_HOME":
+                                                case "REACH_POS":
+                                                case "REACH_SLOT":
+                                                case "REACH_STAGE":
+                                                case "REACH_WAFER":
+                                                    each.Type = ReturnMessage.ReturnType.Finished;
+                                                    break;
+
+                                                case "POD_ARRIVED":
+                                                case "POD_REMOVED":
+                                                    each.Type = ReturnMessage.ReturnType.Event;
+                                                    each.Command = content[i];
+                                                    break;
+
+                                                default:
+
+                                                    each.Command = content[i];
+                                                    break;
+                                            }
+                                        }
                                         break;
 
                                     case 2:

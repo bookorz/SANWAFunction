@@ -236,36 +236,19 @@ namespace SANWA.Utility
             return CommandAssembly(Supplier, Command, Command + "_" + parm);
         }
 
-        public string SetCassetteSizeOption(CassrtteSize size)
+        public string SetCassetteSizeOption(string size)
         {
             string Command = string.Empty;
-            string parm = string.Empty;
+            string param = string.Empty;
             try
             {
                 switch (Supplier)
                 {
                     case "ASYST":
                         Command = "ECS";
-                        switch (size)
-                        {
 
-                            case CassrtteSize.Cassette_8_Inch:
+                        param = "P39=" + size;
 
-                                parm = "P39=0";
-                                break;
-                            case CassrtteSize.Cassette_4_Or_6_Inch:
-
-                                parm = "P39=2";
-                                break;
-                            case CassrtteSize.Disable_SlotSensor_INX2200:
-
-                                parm = "P39=4";
-                                break;
-                            case CassrtteSize.Disable_SlotSensor_INX2150:
-
-                                parm = "P39=5";
-                                break;
-                        }
                         break;
 
                 }
@@ -275,7 +258,32 @@ namespace SANWA.Utility
             {
                 throw new Exception(ex.ToString());
             }
-            return CommandAssembly(Supplier, Command, Command + "_" + parm);
+            return Command + " "+param + "\r\n";
+        }
+
+        public string GetCassetteSizeOption()
+        {
+            string Command = string.Empty;
+            string param = string.Empty;
+            try
+            {
+                switch (Supplier)
+                {
+                    case "ASYST":
+                        Command = "ECR";
+
+                        param = "P39";
+
+                        break;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            return Command + " " + param + "\r\n";
         }
 
         public string Tweek(TweekType type)
@@ -335,6 +343,30 @@ namespace SANWA.Utility
             return Command + " " + parm + "\r\n";
         }
 
+        public string GetSlotOffset()
+        {
+            string Command = string.Empty;
+            string parm = string.Empty;
+            try
+            {
+                switch (Supplier)
+                {
+                    case "ASYST":
+                        Command = "ECR";
+                        parm = "P30";
+
+                        break;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            return Command + " " + parm + "\r\n";
+        }
+
         public string SetWaferOffset(string offset)
         {
             string Command = string.Empty;
@@ -346,6 +378,30 @@ namespace SANWA.Utility
                     case "ASYST":
                         Command = "ECS";
                         parm = "P31=" + offset;
+
+                        break;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            return Command + " " + parm + "\r\n";
+        }
+
+        public string GetWaferOffset()
+        {
+            string Command = string.Empty;
+            string parm = string.Empty;
+            try
+            {
+                switch (Supplier)
+                {
+                    case "ASYST":
+                        Command = "ECR";
+                        parm = "P31";
 
                         break;
 
@@ -383,6 +439,30 @@ namespace SANWA.Utility
             return Command + " " + parm + "\r\n";
         }
 
+        public string GetSlotPitch()
+        {
+            string Command = string.Empty;
+            string parm = string.Empty;
+            try
+            {
+                switch (Supplier)
+                {
+                    case "ASYST":
+                        Command = "ECR";
+                        parm = "P35";
+
+                        break;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            return Command + " " + parm + "\r\n";
+        }
+
         public string SetTweekDistance(string distance)
         {
             string Command = string.Empty;
@@ -394,6 +474,30 @@ namespace SANWA.Utility
                     case "ASYST":
                         Command = "ECS";
                         parm = "P36=" + distance;
+
+                        break;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            return Command + " " + parm + "\r\n";
+        }
+
+        public string GetTweekDistance()
+        {
+            string Command = string.Empty;
+            string parm = string.Empty;
+            try
+            {
+                switch (Supplier)
+                {
+                    case "ASYST":
+                        Command = "ECR";
+                        parm = "P36";
 
                         break;
 
