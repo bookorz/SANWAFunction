@@ -233,6 +233,7 @@ namespace SANWA.Utility
                     each.NodeAdr = "1";
                     each.Command = "";
                     each.OrgMsg = Msg;
+                    each.CommandType = "CMD";
                     switch (Msg)
                     {
 
@@ -271,6 +272,7 @@ namespace SANWA.Utility
                 each.NodeAdr = "1";
                 each.Command = "";
                 each.OrgMsg = Msg;
+                each.CommandType = "CMD";
                 switch (Msg)
                 {
                     case "1\r\n":
