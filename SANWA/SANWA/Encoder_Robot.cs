@@ -292,10 +292,10 @@ namespace SANWA.Utility
 
                 case "ATEL_NEW":
                     return CommandAssembly(Supplier, Address, Sequence, "CMD", "GetWafer", Point, Slot, Arm, "1");
-             
+
                 default:
                     return CommandAssembly(Supplier, Address, Sequence, "CMD", "GetWafer", Point, Slot, Arm, Alignment, "1");
-              
+
             }
         }
 
@@ -368,7 +368,7 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string HomeOrgin(string Address, string Sequence)
         {
-            string Parameter01 = Supplier == "KAWASAKI" ?  Address.ToString() :null;
+            string Parameter01 = Supplier == "KAWASAKI" ? Address.ToString() : null;
 
             return CommandAssembly(Supplier, Address, Sequence, "CMD", "HOMEToOrgin", Parameter01);
         }
@@ -496,7 +496,7 @@ namespace SANWA.Utility
         {
             string Parameter01 = string.Empty;
 
-            if (Supplier == "SANWA"|| Supplier == "ATEL_NEW")
+            if (Supplier == "SANWA" || Supplier == "ATEL_NEW")
             {
                 Parameter01 = string.Format("{0},{1},{2}", axis, type, pos);
             }
@@ -744,7 +744,7 @@ namespace SANWA.Utility
                     break;
             }
 
-            return strMsg; 
+            return strMsg;
         }
 
         /// <summary>
@@ -903,6 +903,15 @@ namespace SANWA.Utility
             return CommandAssembly(Supplier, Address, Sequence, "SET", "DeviceStatusSpeed", Parameter01.Split(','));
         }
 
+        public string setSv(string Address, string Sequence, string no, string vl)
+        {
+            string result = "$" + Address + "SET:SV___:" + no + "," + vl;
+
+
+
+            return result + "\r";
+        }
+
         /// <summary>
         /// 各軸速度限制設定 [ ATEL ]
         /// </summary>
@@ -967,7 +976,7 @@ namespace SANWA.Utility
         public string setTeachPoint(string Address, string Sequence, string pno, string arm, string slot)
         {
             string Parameter01 = string.Empty;
-            string CMD = Supplier == "KAWASAKI" ?  "CMD":"SET" ;
+            string CMD = Supplier == "KAWASAKI" ? "CMD" : "SET";
 
             if (Supplier == "SANWA" || Supplier == "ATEL_NEW")
             {
@@ -1070,7 +1079,7 @@ namespace SANWA.Utility
 
                 case "KAWASAKI":
                     Parameter01 = Address.ToString();
-                    Command =  "DeviceStatusSpeedGet";
+                    Command = "DeviceStatusSpeedGet";
                     break;
             }
 
@@ -1146,7 +1155,7 @@ namespace SANWA.Utility
         public string TeachPoint(string Address, string Sequence, string pno)
         {
             string CMD = Supplier == "SANWA" ? "GET" : "GET";
-            string Command = Supplier == "KAWASAKI" ?  "TeachGet" :"Teach";
+            string Command = Supplier == "KAWASAKI" ? "TeachGet" : "Teach";
 
             return CommandAssembly(Supplier, Address, Sequence, CMD, Command, pno);
         }
@@ -1184,7 +1193,7 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string WaferHold(string Address, string Sequence, string arm)
         {
-            string Parameter01 = Supplier == "KAWASAKI" ?   (Address.ToString() + "," + arm):arm;
+            string Parameter01 = Supplier == "KAWASAKI" ? (Address.ToString() + "," + arm) : arm;
 
             return CommandAssembly(Supplier, Address, Sequence, "CMD", "WaferHold", Parameter01.Split(','));
         }
@@ -1198,7 +1207,7 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string WaferReleaseHold(string Address, string Sequence, string arm)
         {
-            string Parameter01 = Supplier == "KAWASAKI" ?   (Address.ToString() + "," + arm):arm;
+            string Parameter01 = Supplier == "KAWASAKI" ? (Address.ToString() + "," + arm) : arm;
 
             return CommandAssembly(Supplier, Address, Sequence, "CMD", "WaferRelease", Parameter01.Split(','));
         }
@@ -1213,7 +1222,7 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string WaferStatus(string Address, string Sequence, string arm, string pno)
         {
-            string CMD = Supplier == "KAWASAKI" ?   "CMD":"GET";
+            string CMD = Supplier == "KAWASAKI" ? "CMD" : "GET";
             string Parameter01 = string.Empty;
 
             if (Supplier == "SANWA" || Supplier == "ATEL_NEW")
@@ -1702,7 +1711,7 @@ namespace SANWA.Utility
                         sbTemp.Append(",");
 
                         if (strsParameter != null)
-                        { 
+                        {
                             for (int i = 0; i < strsParameter.Length; i++)
                             {
                                 sbTemp.Append(strsParameter[i].ToString().Equals("Empty") ? string.Empty : strsParameter[i].ToString());
