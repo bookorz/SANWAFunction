@@ -11,7 +11,7 @@ namespace SANWA.Utility
     public class EncoderLoadPort
     {
         private string Supplier;
-        private DataTable dtRobotCommand;
+       
         private CommandMode cmdMode;
 
         /// <summary>
@@ -103,17 +103,33 @@ namespace SANWA.Utility
             TDK_A,
             TDK_B
         }
-
+        private string EndCode()
+        {
+            string result = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL":
+                case "ATEL_NEW":
+                    result = "\r";
+                    break;
+                case "ASYST":
+                case "KAWASAKI":
+                    result = "\r\n";
+                    break;
+            }
+            return result;
+        }
         /// <summary>
         /// Load Port Encoder
         /// </summary>
         /// <param name="supplier"> 設備供應商 </param>
-        public EncoderLoadPort(string supplier, DataTable dtCommand, CommandMode commandMode)
+        public EncoderLoadPort(string supplier, CommandMode commandMode)
         {
             try
             {
                 Supplier = supplier;
-                dtRobotCommand = dtCommand;
+              
                 cmdMode = commandMode;
             }
             catch (Exception ex)
@@ -1149,13 +1165,28 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Stop(CommandType commandType)
         {
+            string commandStr = "";
             switch (Supplier)
             {
                 case "ASYST":
-                    return "HCS STOP" + "\r\n";
+                    commandStr = "HCS STOP";
+                    break;
+                case "TDK":
+                    switch (cmdMode)
+                    {
+                        case CommandMode.TDK_A:
+                            commandStr = TDK_A("MOV:STOP_;");
+                            break;
+                        case CommandMode.TDK_B:
+                            commandStr = TDK_B("MOV:STOP_;");
+                            break;
+                    }
+                    break;
                 default:
-                    return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "Stop");
+                    throw new NotSupportedException();
             }
+
+            return commandStr + EndCode();
 
         }
 

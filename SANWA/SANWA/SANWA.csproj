@@ -78,7 +78,6 @@
     <Compile Include="ContainerUI.cs" />
     <Compile Include="ControllingUI.cs" />
     <Compile Include="Decoder.cs" />
-    <Compile Include="Encoder_DIO.cs" />
     <Compile Include="Encoder_LoadPort.cs" />
     <Compile Include="Encoder_OCR.cs" />
     <Compile Include="Encoder_SmartTag.cs" />

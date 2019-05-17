@@ -11,18 +11,17 @@ namespace SANWA.Utility
     public class EncoderOCR
     {
         private string Supplier;
-        private DataTable dtRobotCommand;
+       
 
         /// <summary>
         /// OCR Encoder
         /// </summary>
         /// <param name="supplier"> 設備供應商 </param>
-        public EncoderOCR(string supplier, DataTable dtCommand)
+        public EncoderOCR(string supplier)
         {
             try
             {
                 Supplier = supplier;
-                dtRobotCommand = dtCommand;
             }
             catch (Exception ex)
             {
@@ -91,7 +90,7 @@ namespace SANWA.Utility
                         }
                         else
                         {
-                            throw new DriveNotFoundException();
+                            throw new NotSupportedException();
                         }
 
                         break;
@@ -112,7 +111,7 @@ namespace SANWA.Utility
                         }
                         else
                         {
-                            throw new DriveNotFoundException();
+                            throw new NotSupportedException();
                         }
 
                         break;
@@ -130,71 +129,5 @@ namespace SANWA.Utility
             return strCommand;
         }
 
-        private string COGNEXImageStore()
-        {
-            FTP fTP = null;
-
-            string strIpAddress = string.Empty;
-            string strLoginUser = string.Empty;
-            string strFtpPort = string.Empty;
-            string strSavePath = string.Empty;
-            string strFileName = string.Empty;
-            string strRemoteFileName = string.Empty;
-            string strLocalFilePath = string.Empty;
-
-            try
-            {
-                strIpAddress = "192.168.0.5";
-                strLoginUser = "admin";
-                strFtpPort = "21";
-                strSavePath = System.AppDomain.CurrentDomain.BaseDirectory + "CognexReadImage\\";
-                strFileName = DateTime.Now.ToString("yyyyMMdd_HHmmssfff") + ".bmp";
-                strRemoteFileName = "Image.bmp";
-
-                fTP = new FTP(strIpAddress, strFtpPort, string.Empty, strLoginUser, string.Empty);
-                strLocalFilePath = fTP.Get(strRemoteFileName, strFileName, strSavePath);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-
-            return strLocalFilePath;
-        }
-
-        private string HSTImageStore()
-        {
-
-            string strSavePath = string.Empty;
-            string strFileName = string.Empty;
-            string strLocalFilePath = string.Empty;
-
-            try
-            {
-                strSavePath = System.AppDomain.CurrentDomain.BaseDirectory + "HSTReadImage\\";
-                strFileName = DateTime.Now.ToString("yyyyMMdd_HHmmssfff") + ".bmp";
-                string lastCreateFileName = String.Empty;
-                DateTime lastCreateFileTime = DateTime.MinValue;
-
-                DirectoryInfo dirInfo = new DirectoryInfo("C:\\新資料夾");
-                foreach (FileInfo fileInfo in dirInfo.GetFiles())
-                {
-                    if (fileInfo.CreationTime > lastCreateFileTime)
-                    {
-                        lastCreateFileTime = fileInfo.CreationTime;
-                        lastCreateFileName = fileInfo.Name;
-                    }
-                }
-
-                System.IO.File.Copy(lastCreateFileName, System.IO.Path.Combine(strSavePath, strFileName), true);
-                strLocalFilePath = System.IO.Path.Combine(strSavePath, strFileName);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-
-            return strLocalFilePath;
-        }
     }
 }
