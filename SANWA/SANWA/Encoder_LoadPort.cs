@@ -11,7 +11,7 @@ namespace SANWA.Utility
     public class EncoderLoadPort
     {
         private string Supplier;
-       
+
         private CommandMode cmdMode;
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace SANWA.Utility
             try
             {
                 Supplier = supplier;
-              
+
                 cmdMode = commandMode;
             }
             catch (Exception ex)
@@ -145,29 +145,22 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Reset(CommandType commandType)
         {
-            string Command = string.Empty;
-
-            switch (commandType)
+            string commandStr = "";
+            switch (Supplier)
             {
-                case CommandType.Normal:
-                    switch (Supplier)
-                    {
-                        case "TDK":
-                            Command = "SET";
-                            break;
+                case "TDK":
 
-                        case "ASYST":
-                            Command = "HCS";
-                            break;
-                    }
+                    commandStr = "SET:RESET;";
+                    commandStr = TDKAssembly(commandStr);
                     break;
-
-                case CommandType.Finish:
-                    Command = "FIN";
+                case "ASYST":
+                    commandStr = "HCS RESET";
                     break;
+                default:
+                    throw new NotSupportedException();
             }
 
-            return CommandAssembly(Supplier, Command, "Reset");
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -177,7 +170,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Initialization(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "SET", "Initialization");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "SET:INITL;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -188,68 +192,51 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Slot(CommandType commandType, string Slot)
         {
-            string Command = string.Empty;
-            try
+            string commandStr = "";
+            switch (Supplier)
             {
-                switch (commandType)
-                {
-                    case CommandType.Normal:
-                        switch (Supplier)
-                        {
-                            case "ASYST":
-                                Command = "HCS";
-                                break;
-                        }
-                        break;
+                case "ASYST":
+                    commandStr = "HCS SLOT";
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
 
-                }
-                Slot = Convert.ToInt32(Slot).ToString();//Remove 0
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-            return CommandAssembly(Supplier, Command, "Slot", new string[] { Slot });
+            return commandStr + EndCode();
         }
 
         public string SetEvent(CommandType commandType, EventType evtType, ParamState state)
         {
-            string Command = string.Empty;
-            string parm = string.Empty;
-            try
+            string commandStr = "";
+            switch (Supplier)
             {
-                switch (Supplier)
-                {
-                    case "ASYST":
-                        switch (evtType)
-                        {
-                            case EventType.All:
+                case "ASYST":
+                    switch (evtType)
+                    {
+                        case EventType.All:
 
-                                Command = "EDER";
-                                if (state == ParamState.Enable)
-                                {
-                                    parm = "ON";
-                                }
-                                else if (state == ParamState.Disable)
-                                {
-                                    parm = "OFF";
-                                }
-                                break;
-                            case EventType.Complete:
-                                Command = "ECS";
-                                parm = "P38=4";
-                                break;
-                        }
-                        break;
-
-                }
-
+                            commandStr = "EDER";
+                            if (state == ParamState.Enable)
+                            {
+                                commandStr += " ON";
+                            }
+                            else if (state == ParamState.Disable)
+                            {
+                                commandStr += " OFF";
+                            }
+                            break;
+                        case EventType.Complete:
+                            commandStr = "ECS";
+                            commandStr += " P38=4";
+                            break;
+                    }
+                    break;
+                default:
+                    throw new NotSupportedException();
             }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-            return CommandAssembly(Supplier, Command, Command + "_" + parm);
+
+            return commandStr + EndCode();
+
         }
 
         public string SetCassetteSizeOption(string size)
@@ -274,7 +261,7 @@ namespace SANWA.Utility
             {
                 throw new Exception(ex.ToString());
             }
-            return Command + " "+param + "\r\n";
+            return Command + " " + param + "\r\n";
         }
 
         public string GetCassetteSizeOption()
@@ -536,7 +523,118 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Indicator(CommandType commandType, IndicatorType indicatorType, IndicatorStatus indicatorStatus)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "SET", string.Format("{0}_{1}", indicatorType.ToString(), indicatorStatus.ToString()));
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    switch (indicatorType)
+                    {
+                        case IndicatorType.Load:
+                            switch (indicatorStatus)
+                            {
+                                case IndicatorStatus.ON:
+                                    commandStr = "SET:LON01;";
+                                    break;
+                                case IndicatorStatus.OFF:
+                                    commandStr = "SET:LOF01;";
+                                    break;
+                                case IndicatorStatus.Flashes:
+                                    commandStr = "SET:LBL01;";
+                                    break;
+                            }
+                            break;
+                        case IndicatorType.Unload:
+                            switch (indicatorStatus)
+                            {
+                                case IndicatorStatus.ON:
+                                    commandStr = "SET:LON02;";
+                                    break;
+                                case IndicatorStatus.OFF:
+                                    commandStr = "SET:LOF02;";
+                                    break;
+                                case IndicatorStatus.Flashes:
+                                    commandStr = "SET:LBL02;";
+                                    break;
+                            }
+                            break;
+                        case IndicatorType.OpAccess:
+                            switch (indicatorStatus)
+                            {
+                                case IndicatorStatus.ON:
+                                    commandStr = "SET:LON03;";
+                                    break;
+                                case IndicatorStatus.OFF:
+                                    commandStr = "SET:LOF03;";
+                                    break;
+                                case IndicatorStatus.Flashes:
+                                    commandStr = "SET:LBL03;";
+                                    break;
+                            }
+                            break;
+                        case IndicatorType.Presence:
+                            switch (indicatorStatus)
+                            {
+                                case IndicatorStatus.ON:
+                                    commandStr = "SET:LON04;";
+                                    break;
+                                case IndicatorStatus.OFF:
+                                    commandStr = "SET:LOF04;";
+                                    break;
+                                case IndicatorStatus.Flashes:
+                                    commandStr = "SET:LBL04;";
+                                    break;
+                            }
+                            break;
+                        case IndicatorType.Placement:
+                            switch (indicatorStatus)
+                            {
+                                case IndicatorStatus.ON:
+                                    commandStr = "SET:LON05;";
+                                    break;
+                                case IndicatorStatus.OFF:
+                                    commandStr = "SET:LOF05;";
+                                    break;
+                                case IndicatorStatus.Flashes:
+                                    commandStr = "SET:LBL05;";
+                                    break;
+                            }
+                            break;
+                        case IndicatorType.Status01:
+                            switch (indicatorStatus)
+                            {
+                                case IndicatorStatus.ON:
+                                    commandStr = "SET:LON07;";
+                                    break;
+                                case IndicatorStatus.OFF:
+                                    commandStr = "SET:LOF07;";
+                                    break;
+                                case IndicatorStatus.Flashes:
+                                    commandStr = "SET:LBL07;";
+                                    break;
+                            }
+                            break;
+                        case IndicatorType.Status02:
+                            switch (indicatorStatus)
+                            {
+                                case IndicatorStatus.ON:
+                                    commandStr = "SET:LON08;";
+                                    break;
+                                case IndicatorStatus.OFF:
+                                    commandStr = "SET:LOF08;";
+                                    break;
+                                case IndicatorStatus.Flashes:
+                                    commandStr = "SET:LBL08;";
+                                    break;
+                            }
+                            break;
+                    }
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -546,22 +644,38 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Mode(ModeType modeType)
         {
-            string Command = string.Empty;
-
-            switch (modeType)
+            string commandStr = "";
+            switch (Supplier)
             {
-                case ModeType.Online:
-                case ModeType.Maintenance:
-                    Command = "MOD";
-                    break;
+                case "TDK":
+                    switch (modeType)
+                    {
+                        case ModeType.Online:
+                            commandStr = "MOD:ONMGV;";
 
-                case ModeType.Auto:
-                case ModeType.Manual:
-                    Command = "HCS";
+                            break;
+                        case ModeType.Maintenance:
+                            commandStr = "MOD:MENTE;";
+                            break;
+                    }
+                    commandStr = TDKAssembly(commandStr);
                     break;
+                case "ASYST":
+                    switch (modeType)
+                    {
+                        case ModeType.Auto:
+                            commandStr = "HCS AUTO";
+
+                            break;
+                        case ModeType.Manual:
+                            commandStr = "HCS MANUAL";
+                            break;
+                    }
+                    break;
+                default:
+                    throw new NotSupportedException();
             }
-
-            return CommandAssembly(Supplier, Command, modeType.ToString());
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -570,20 +684,20 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Status()
         {
-            string Command = string.Empty;
-
+            string commandStr = "";
             switch (Supplier)
             {
-                case "ASYST":
-                    Command = CommandAssembly(Supplier, "FSR", "Status");
-                    break;
-
                 case "TDK":
-                    Command = CommandAssembly(Supplier, "GET", "Status");
+                    commandStr = "GET:STATE;";
+                    commandStr = TDKAssembly(commandStr);
                     break;
+                case "ASYST":
+                    commandStr = "FSR FC=0";
+                    break;
+                default:
+                    throw new NotSupportedException();
             }
-
-            return Command;
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -592,7 +706,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Version()
         {
-            return CommandAssembly(Supplier, "GET", "Version");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "GET:VERSN;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -601,7 +725,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string LEDIndicatorStatus()
         {
-            return CommandAssembly(Supplier, "GET", "LEDStatus");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "GET:LEDST;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -611,20 +745,28 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string WaferSorting(MappingSortingType sortingType)
         {
-            string Command = string.Empty;
-
+            string commandStr = "";
             switch (Supplier)
             {
-                case "ASYST":
-                    Command = CommandAssembly(Supplier, "FSR", "WaferSorting");
-                    break;
-
                 case "TDK":
-                    Command = CommandAssembly(Supplier, "GET", string.Format("WaferSorting_{0}", sortingType.ToString()));
+                    switch (sortingType)
+                    {
+                        case MappingSortingType.Asc:
+                            commandStr = "GET:MAPRD;";
+                            break;
+                        case MappingSortingType.Desc:
+                            commandStr = "GET:MAPDT;";
+                            break;
+                    }                   
+                    commandStr = TDKAssembly(commandStr);
                     break;
+                case "ASYST":
+                    commandStr = "FSR FC=2";
+                    break;
+                default:
+                    throw new NotSupportedException();
             }
-
-            return Command;
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -633,7 +775,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string WaferQuantity()
         {
-            return CommandAssembly(Supplier, "GET", "WaferQuantity");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "GET:WFCNT;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -643,29 +795,20 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string InitialPosition(CommandType commandType)
         {
-            string Command = string.Empty;
-
-            switch (commandType)
+            string commandStr = "";
+            switch (Supplier)
             {
-                case CommandType.Normal:
-                    switch (Supplier)
-                    {
-                        case "TDK":
-                            Command = "MOV";
-                            break;
-
-                        case "ASYST":
-                            Command = "HCS";
-                            break;
-                    }
+                case "TDK":
+                    commandStr = "MOV:ORGSH;";
+                    commandStr = TDKAssembly(commandStr);
                     break;
-
-                case CommandType.Finish:
-                    Command = "FIN";
+                case "ASYST":
+                    commandStr = "HCS CALIB";
                     break;
+                default:
+                    throw new NotSupportedException();
             }
-
-            return CommandAssembly(Supplier, Command, "InitialPosition");
+            return commandStr + EndCode();            
         }
 
         /// <summary>
@@ -675,7 +818,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string ForcedInitialPosition(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "ForcedInitialPosition");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:ABORG;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -685,29 +838,20 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Load(CommandType commandType)
         {
-            string Command = string.Empty;
-
-            switch (commandType)
+            string commandStr = "";
+            switch (Supplier)
             {
-                case CommandType.Normal:
-                    switch (Supplier)
-                    {
-                        case "TDK":
-                            Command = "MOV";
-                            break;
-
-                        case "ASYST":
-                            Command = "HCS";
-                            break;
-                    }
+                case "TDK":
+                    commandStr = "MOV:CLOAD;";
+                    commandStr = TDKAssembly(commandStr);
                     break;
-
-                case CommandType.Finish:
-                    Command = "FIN";
+                case "ASYST":
+                    commandStr = "HCS STAGE";
                     break;
+                default:
+                    throw new NotSupportedException();
             }
-
-            return CommandAssembly(Supplier, Command, "Load");
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -717,7 +861,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string DockingPosition(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "DockingPosition");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:CLDDK;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -727,7 +881,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string DockingPositionNoVac(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "DockingPositionNoVac");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:CLDYD;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -737,41 +901,20 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string DockingPositionAfterLoad(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "DockingPositionAfterLoad");
-        }
-
-        /// <summary>
-        /// Mapping Load  [TDK, ASYST]
-        /// </summary>
-        /// <param name="commandType"> Command Type </param>
-        /// <returns></returns>
-        public string MappingLoad(CommandType commandType)
-        {
-            string Command = string.Empty;
-
-            switch (commandType)
+            string commandStr = "";
+            switch (Supplier)
             {
-                case CommandType.Normal:
-                    switch (Supplier)
-                    {
-                        case "TDK":
-                            Command = "MOV";
-                            break;
-
-                        case "ASYST":
-                            Command = "HCS";
-                            break;
-                    }
+                case "TDK":
+                    commandStr = "MOV:CLDOP;";
+                    commandStr = TDKAssembly(commandStr);
                     break;
-
-                case CommandType.Finish:
-                    Command = "FIN";
-                    break;
+                default:
+                    throw new NotSupportedException();
             }
-
-            return CommandAssembly(Supplier, Command, "MappingLoad");
+            return commandStr + EndCode();
         }
 
+     
         /// <summary>
         /// Docking Position After Mapping
         /// </summary>
@@ -779,7 +922,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string DockingPositionAfterMapping(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "DockingPositionAfterMapping");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:CLMPO;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -789,29 +942,20 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Unload(CommandType commandType)
         {
-            string Command = string.Empty;
-
-            switch (commandType)
+            string commandStr = "";
+            switch (Supplier)
             {
-                case CommandType.Normal:
-                    switch (Supplier)
-                    {
-                        case "TDK":
-                            Command = "MOV";
-                            break;
-
-                        case "ASYST":
-                            Command = "HCS";
-                            break;
-                    }
+                case "TDK":
+                    commandStr = "MOV:CULOD;";
+                    commandStr = TDKAssembly(commandStr);
                     break;
-
-                case CommandType.Finish:
-                    Command = "FIN";
+                case "ASYST":
+                    commandStr = "HCS HOME";
                     break;
+                default:
+                    throw new NotSupportedException();
             }
-
-            return CommandAssembly(Supplier, Command, "Unload");
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -821,7 +965,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string UntilDoorClose(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "UntilDoorClose");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:CULDK;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -831,7 +985,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string DoorCloseAfterUndock(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "DoorCloseAfterUndock");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:CUDCL;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -841,7 +1005,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string DoorCloseAfterUnload(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "DoorCloseAfterUnload");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:CUDNC;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -851,7 +1025,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string UntilDoorCloseVacOFF(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "UntilDoorCloseVacOFF");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:CULYD;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -861,7 +1045,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string UntilUndock(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "UntilUndock");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:CULFC;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -871,7 +1065,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string MapAndUnload(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "MapAndUnload");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:CUDMP;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -881,7 +1085,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string MapAndUntilDoorClose(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "MapAndUntilDoorClose");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:CUMDK;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -891,7 +1105,39 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string MapAndUntilUndock(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "MapAndUntilUndock");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:CUMFC;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
+        }
+        /// <summary>
+        /// Mapping Load  [TDK, ASYST]
+        /// </summary>
+        /// <param name="commandType"> Command Type </param>
+        /// <returns></returns>
+        public string MappingLoad(CommandType commandType)
+        {
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:CLDMP;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                case "ASYST":
+                    commandStr = "HCS STAGE";
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -901,7 +1147,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string MappingInLoad(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "MappingInLoad");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:MAPDO;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -911,7 +1167,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string RetryMapping(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "RetryMapping");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:REMAP;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -921,29 +1187,20 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string FOUPClampRelease(CommandType commandType)
         {
-            string Command = string.Empty;
-
-            switch (commandType)
+            string commandStr = "";
+            switch (Supplier)
             {
-                case CommandType.Normal:
-                    switch (Supplier)
-                    {
-                        case "TDK":
-                            Command = "MOV";
-                            break;
-
-                        case "ASYST":
-                            Command = "HCS";
-                            break;
-                    }
+                case "TDK":
+                    commandStr = "MOV:PODOP;";
+                    commandStr = TDKAssembly(commandStr);
                     break;
-
-                case CommandType.Finish:
-                    Command = "FIN";
+                case "ASYST":
+                    commandStr = "HCS UNLK";
                     break;
+                default:
+                    throw new NotSupportedException();
             }
-
-            return CommandAssembly(Supplier, Command, "FOUPClampRelease");
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -953,29 +1210,20 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string FOUPClampFix(CommandType commandType)
         {
-            string Command = string.Empty;
-
-            switch (commandType)
+            string commandStr = "";
+            switch (Supplier)
             {
-                case CommandType.Normal:
-                    switch (Supplier)
-                    {
-                        case "TDK":
-                            Command = "MOV";
-                            break;
-
-                        case "ASYST":
-                            Command = "HCS";
-                            break;
-                    }
+                case "TDK":
+                    commandStr = "MOV:PODCL;";
+                    commandStr = TDKAssembly(commandStr);
                     break;
-
-                case CommandType.Finish:
-                    Command = "FIN";
+                case "ASYST":
+                    commandStr = "HCS LOCK";
                     break;
+                default:
+                    throw new NotSupportedException();
             }
-
-            return CommandAssembly(Supplier, Command, "FOUPClampFix");
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -985,7 +1233,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Undock(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "Undock");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:YWAIT;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -995,7 +1253,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Dock(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "Dock");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:YDOOR;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1005,7 +1273,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string VacuumOFF(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "VacuumOFF");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:VACOF;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1015,7 +1293,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string VacuumON(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "VacuumON");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:VACON;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1025,7 +1313,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string LatchkeyFix(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "LatchkeyFix");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:DORCL;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1035,7 +1333,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string LatchkeyRelease(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "LatchkeyRelease");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:DOROP;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1045,7 +1353,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string DoorClose(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "DoorClose");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:DORFW;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1055,7 +1373,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string DoorOpen(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "DoorOpen");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:DORBK;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1065,7 +1393,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string DoorUp(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "DoorUp");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:ZDRUP;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1075,7 +1413,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string DoorDown(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "DoorDown");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:ZDRDW;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1085,7 +1433,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string MapperStopperON(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "(MapperStopperON");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:MSTON;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1095,7 +1453,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string MapperStopperOFF(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "MapperStopperOFF");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:MSTOF;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1105,7 +1473,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string MapperWaitPosition(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "MapperWaitPosition");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:ZMPED;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1115,7 +1493,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string MapperStartPosition(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "MapperStartPosition");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:ZMPST;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1125,7 +1513,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string MapperArmClose(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "MapperArmClose");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:MAPCL;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1135,7 +1533,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string MapperArmOpen(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "MapperArmOpen");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:MAPOP;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1145,7 +1553,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string MappingDown(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "MappingDown");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:ZDRMP;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1155,7 +1573,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Retry(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "Retry");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:RETRY;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1168,26 +1596,17 @@ namespace SANWA.Utility
             string commandStr = "";
             switch (Supplier)
             {
+                case "TDK":
+                    commandStr = "MOV:STOP_;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
                 case "ASYST":
                     commandStr = "HCS STOP";
-                    break;
-                case "TDK":
-                    switch (cmdMode)
-                    {
-                        case CommandMode.TDK_A:
-                            commandStr = TDK_A("MOV:STOP_;");
-                            break;
-                        case CommandMode.TDK_B:
-                            commandStr = TDK_B("MOV:STOP_;");
-                            break;
-                    }
                     break;
                 default:
                     throw new NotSupportedException();
             }
-
             return commandStr + EndCode();
-
         }
 
         /// <summary>
@@ -1197,7 +1616,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Pause(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "Pause");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    commandStr = "MOV:PAUSE;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1207,29 +1636,20 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Abort(CommandType commandType)
         {
-            string Command = string.Empty;
-
-            switch (commandType)
+            string commandStr = "";
+            switch (Supplier)
             {
-                case CommandType.Normal:
-                    switch (Supplier)
-                    {
-                        case "TDK":
-                            Command = "MOV";
-                            break;
-
-                        case "ASYST":
-                            Command = "HCS";
-                            break;
-                    }
+                case "TDK":
+                    commandStr = "MOV:ABORT;";
+                    commandStr = TDKAssembly(commandStr);
                     break;
-
-                case CommandType.Finish:
-                    Command = "FIN";
+                case "ASYST":
+                    commandStr = "HCS STOP";
                     break;
+                default:
+                    throw new NotSupportedException();
             }
-
-            return CommandAssembly(Supplier, Command, "Abort");
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1239,11 +1659,25 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string EQASP(ParamState state)
         {
-            string Command = string.Empty;
-
-            Command = "PRM";
-
-            return CommandAssembly(Supplier, Command, string.Format("EQASP_{0}", state.ToString()));
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "TDK":
+                    switch (state)
+                    {
+                        case ParamState.Enable:
+                            commandStr = "PRM:eqasp/ON;";
+                            break;
+                        case ParamState.Disable:
+                            commandStr = "PRM:eqasp/OFF;";
+                            break;
+                    }                   
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
         }
 
         /// <summary>
@@ -1253,91 +1687,33 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Resum(CommandType commandType)
         {
-            return CommandAssembly(Supplier, commandType.ToString().Equals("Finish") ? "FIN" : "MOV", "Resum");
-        }
-
-        private string CommandAssembly(string Supplier, string CommandType, string Command, params string[] Parameter)
-        {
-            string strCommand = string.Empty;
-            string strCommandFormat = string.Empty;
-            string strCommandFormatParameter = string.Empty;
-            DataTable dtTemp;
-            DataView dvTemp;
-            ContainerSet container;
-            StringBuilder sbTemp;
-
-            try
-            {
-
-                container = new ContainerSet();
-                sbTemp = new StringBuilder();
-
-                var query = (from a in dtRobotCommand.AsEnumerable()
-                             where a.Field<string>("node_type") == "LOADPORT"
-                                && a.Field<string>("vendor") == Supplier
-                                && a.Field<string>("code_type") == CommandType
-                                && a.Field<string>("Action_Function") == Command
-                             select a).ToList();
-
-                if (query.Count == 0)
-                {
-                    throw new RowNotInTableException();
-                }
-
-                dtTemp = query.CopyToDataTable();
-                dtTemp.DefaultView.Sort = "Parameter_Order ASC";
-                dvTemp = dtTemp.DefaultView;
-
-                switch (Supplier)
-                {
-                    case "TDK":
-
-                        switch (cmdMode)
-                        {
-                            case CommandMode.TDK_A:
-                                strCommandFormat = TDK_A(dtTemp.Rows[0]["code_format"].ToString());
-                                break;
-                            case CommandMode.TDK_B:
-                                strCommandFormat = TDK_B(dtTemp.Rows[0]["code_format"].ToString());
-                                break;
-                        }
-
-                        break;
-
-                    case "ASYST":
-
-                        strCommandFormat = dtTemp.Rows[0]["code_format"].ToString();
-                        strCommandFormatParameter = string.Empty;
-
-                        foreach (string str in Parameter)
-                        {
-                            strCommandFormatParameter = strCommandFormatParameter + " " + str;
-                        }
-
-                        break;
-
-
-                    default:
-                        throw new NotImplementedException();
-                }
-
-                strCommand = strCommandFormat + strCommandFormatParameter;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-
+            string commandStr = "";
             switch (Supplier)
             {
-                case "ASYST":
+                case "TDK":
+                    commandStr = "MOV:RESUM;";
+                    commandStr = TDKAssembly(commandStr);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr + EndCode();
+        }
 
-                    strCommand = strCommand + "\r\n";
 
+        public string TDKAssembly(string Command)
+        {
+            string strCommandFormat = "";
+            switch (cmdMode)
+            {
+                case CommandMode.TDK_A:
+                    strCommandFormat = TDK_A(Command);
+                    break;
+                case CommandMode.TDK_B:
+                    strCommandFormat = TDK_B(Command);
                     break;
             }
-
-            return strCommand;
+            return strCommandFormat;
         }
 
         public string TDK_A(string Command)

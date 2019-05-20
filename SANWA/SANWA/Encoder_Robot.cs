@@ -603,7 +603,7 @@ namespace SANWA.Utility
             {
                 case "SANWA":
                 case "ATEL_NEW":
-                    commandStr = "${0}{1}GET:MODE_:{2}";
+                    commandStr = "${0}{1}SET:MODE_:{2}";
                     commandStr = string.Format(commandStr, Address, Sequence, vl) + EndCode();
                     break;
                 default:
