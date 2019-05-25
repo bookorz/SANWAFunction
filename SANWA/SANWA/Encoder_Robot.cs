@@ -941,7 +941,7 @@ namespace SANWA.Utility
             {
                 case "SANWA":
                 case "ATEL_NEW":
-                    commandStr = "${0}{1}CMD:PUT__:{2},{3},{4}";
+                    commandStr = "${0}{1}CMD:PUT__:{2},{3},{4},{5}";
                     commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm, "0") + EndCode();
                     break;
                 default:
@@ -966,7 +966,7 @@ namespace SANWA.Utility
             {
                 case "SANWA":
                 case "ATEL_NEW":
-                    commandStr = "${0}{1}CMD:PUT__:{2},{3},{4}";
+                    commandStr = "${0}{1}CMD:PUT__:{2},{3},{4},{5}";
                     commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm, "3") + EndCode();
                     break;
                 default:
@@ -992,7 +992,7 @@ namespace SANWA.Utility
             {
                 case "SANWA":
                 case "ATEL_NEW":
-                    commandStr = "${0}{1}CMD:PUT__:{2},{3},{4}";
+                    commandStr = "${0}{1}CMD:PUT__:{2},{3},{4},{5}";
                     commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm, "2") + EndCode();
                     break;
                 default:
@@ -1042,7 +1042,7 @@ namespace SANWA.Utility
             {
                 case "SANWA":
                 case "ATEL_NEW":
-                    commandStr = "${0}{1}CMD:PUT__:{2},{3},{4}";
+                    commandStr = "${0}{1}CMD:PUT__:{2},{3},{4},{5}";
                     commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm, "1") + EndCode();
                     break;
                 default:

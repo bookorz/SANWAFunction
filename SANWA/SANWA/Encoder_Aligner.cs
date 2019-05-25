@@ -53,7 +53,7 @@ namespace SANWA.Utility
                 case "SANWA":
                 
                     commandStr = "${0}{1}GET:POS__:{2},{3}";
-                    string.Format(commandStr, Address, Sequence, Type, Unit);
+                    commandStr = string.Format(commandStr, Address, Sequence, Type, Unit);
                     break;
                 default:
                     throw new NotSupportedException();
@@ -76,7 +76,7 @@ namespace SANWA.Utility
                 case "SANWA":
                 
                     commandStr = "${0}{1}CMD:ALIGN:{2}";
-                    string.Format(commandStr, Address, Sequence, angle);
+                    commandStr = string.Format(commandStr, Address, Sequence, angle);
                     break;
                 default:
                     throw new NotSupportedException();
@@ -111,7 +111,7 @@ namespace SANWA.Utility
                 case "SANWA":
 
                     commandStr = "${0}{1}CMD:ALIGN:{2},{3},{4},{5}";
-                    string.Format(commandStr, Address, Sequence, angle, notch, ZAxis, mode);
+                    commandStr = string.Format(commandStr, Address, Sequence, angle, notch, ZAxis, mode);
                     break;
                 default:
                     throw new NotSupportedException();
@@ -135,7 +135,7 @@ namespace SANWA.Utility
                 case "SANWA":
 
                     commandStr = "${0}{1}SET:ALIGN:{2}";
-                    string.Format(commandStr, Address, Sequence, vl);
+                    commandStr = string.Format(commandStr, Address, Sequence, vl);
                     break;
                 default:
                     throw new NotSupportedException();
@@ -158,7 +158,7 @@ namespace SANWA.Utility
                 case "SANWA":
                
                     commandStr = "${0}{1}SET:CONT_";
-                    string.Format(commandStr, Address, Sequence);
+                    commandStr = string.Format(commandStr, Address, Sequence);
                     break;
                 default:
                     throw new NotSupportedException();
@@ -181,7 +181,7 @@ namespace SANWA.Utility
                 case "SANWA":
                
                     commandStr = "${0}{1}SET:PAUSE";
-                    string.Format(commandStr, Address, Sequence);
+                    commandStr = string.Format(commandStr, Address, Sequence);
                     break;
                 default:
                     throw new NotSupportedException();
@@ -205,7 +205,7 @@ namespace SANWA.Utility
                 case "SANWA":
                
                     commandStr = "${0}{1}SET:STOP_";
-                    string.Format(commandStr, Address, Sequence);
+                    commandStr = string.Format(commandStr, Address, Sequence);
                     break;
                 default:
                     throw new NotSupportedException();
@@ -250,7 +250,7 @@ namespace SANWA.Utility
                 case "SANWA":
                
                     commandStr = "${0}{1}SET:RESET";
-                    string.Format(commandStr, Address, Sequence);
+                    commandStr= string.Format(commandStr, Address, Sequence);
                     break;
                 default:
                     throw new NotSupportedException();
@@ -361,8 +361,8 @@ namespace SANWA.Utility
             {
                 case "SANWA":
            
-                    commandStr = "${0}{1}GET:MODE_:{2}";
-                    commandStr = string.Format(commandStr, Address, Sequence, vl) + EndCode();
+                    commandStr = "${0}{1}SET:MODE_:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence,vl) + EndCode();
                     break;
                 default:
                     throw new NotSupportedException();
