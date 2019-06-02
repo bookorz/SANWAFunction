@@ -731,6 +731,7 @@ namespace SANWA.Utility
 
                                                 case "POD_ARRIVED":
                                                 case "POD_REMOVED":
+                                                case "EXIT_HOME":
                                                     each.Type = ReturnMessage.ReturnType.Event;
                                                     each.Command = content[i];
                                                     break;

@@ -11,24 +11,42 @@ namespace SANWA.Utility
     public class EncoderRobot
     {
         private string Supplier;
-        private DataTable dtRobotCommand;
+  
 
         /// <summary>
         /// Robot Encoder
         /// </summary>
         /// <param name="supplier"> 設備供應商 </param>
         /// <param name="dtCommand"> Parameter List </param>
-        public EncoderRobot(string supplier, DataTable dtCommand)
+        public EncoderRobot(string supplier)
         {
             try
             {
                 Supplier = supplier;
-                dtRobotCommand = dtCommand;
+          
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
             }
+        }
+
+        private string EndCode()
+        {
+            string result = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL":
+                case "ATEL_NEW":
+                    result = "\r";
+                    break;
+
+                case "KAWASAKI":
+                    result = "\r\n";
+                    break;
+            }
+            return result;
         }
 
         /// <summary>
@@ -40,7 +58,19 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string AbssoluteEncoderOffset(string Address, string Sequence, string axis)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "AbssoluteEncoderOffset", axis);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:ENCOF:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Convert.ToInt16(axis).ToString("00")) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+
+            return commandStr;
         }
 
         /// <summary>
@@ -52,7 +82,19 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string AbssoluteEncoderReset(string Address, string Sequence, string axis)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "AbssoluteEncoderReset", axis);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:ENCCL:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Convert.ToInt16(axis).ToString("00")) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+
+            return commandStr;
         }
 
         /// <summary>
@@ -65,7 +107,19 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string ArmLocation(string Address, string Sequence, string Type, string Unit)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "ArmLocation", Type, Unit);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}GET:POS__:{2},{3}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Type, Unit) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+
+            return commandStr;
         }
 
         /// <summary>
@@ -77,7 +131,19 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string BatteryAlarmClear(string Address, string Sequence, string axis)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "BatteryAlarmClear", axis);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:BATCL:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Convert.ToInt16(axis).ToString("00")) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+
+            return commandStr;
         }
 
         /// <summary>
@@ -88,7 +154,19 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string DeviceContinue(string Address, string Sequence)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "Continue");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:CONT_";
+                    commandStr = string.Format(commandStr, Address, Sequence) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+
+            return commandStr;
         }
 
         /// <summary>
@@ -99,7 +177,19 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string DevicePause(string Address, string Sequence)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "Pause");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:PAUSE";
+                    commandStr = string.Format(commandStr, Address, Sequence) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+
+            return commandStr;
         }
 
         /// <summary>
@@ -111,7 +201,19 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string DeviceStop(string Address, string Sequence, string m1)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "Stop", m1);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:STOP_";
+                    commandStr = string.Format(commandStr, Address, Sequence) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+
+            return commandStr;
         }
 
         /// <summary>
@@ -123,18 +225,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string ErrorMessage(string Address, string Sequence, string no)
         {
-            string Parameter01 = string.Empty;
-
-            if (Supplier == "KAWASAKI")
+            string commandStr = "";
+            switch (Supplier)
             {
-                Parameter01 = string.Format("{0},{1}", Address.ToString(), no);
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}GET:ERR__:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Convert.ToInt16(no).ToString("00")) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
             }
-            else
-            {
-                Parameter01 = no;
-            }
-
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "ErrorList", Parameter01.Split(','));
+            return commandStr;
         }
 
         /// <summary>
@@ -145,7 +247,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string ErrorReset(string Address, string Sequence)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "ErrorReset");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:RESET";
+                    commandStr = string.Format(commandStr, Address, Sequence) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -162,7 +275,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Exchange(string Address, string Sequence, string Arm_form, string Point_form, string Slot_form, string Arm_to, string Point_to, string Slot_to)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "Exchange", new string[] { Point_form, Slot_form, Arm_form, Point_to, Slot_to, Arm_to });
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}CMD:CARRY,{2},{3},{4},{5},{6},{7}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Point_form, Slot_form, Arm_form, Point_to, Slot_to, Arm_to) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -174,30 +298,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string ServoOn(string Address, string Sequence, string sv)
         {
-            string Parameter01 = string.Empty;
-            string Command = string.Empty;
-            string CMD = Supplier == "SANWA" ? "SET" : "SET";
-
-            if (Supplier == "SANWA" || Supplier == "ATEL_NEW")
+            string commandStr = "";
+            switch (Supplier)
             {
-                Command = "Excitation";
-                Parameter01 = sv;
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:SERVO:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence, sv) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
             }
-            else if (Supplier == "KAWASAKI")
-            {
-                Parameter01 = Address.ToString();
-
-                if (sv.Equals("1"))
-                {
-                    Command = "ExcitationOn";
-                }
-                else if (sv.Equals("0"))
-                {
-                    Command = "ExcitationOff";
-                }
-            }
-
-            return CommandAssembly(Supplier, Address, Sequence, CMD, Command, Parameter01);
+            return commandStr;
         }
 
         /// <summary>
@@ -212,31 +324,21 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string GetWafer(string Address, string Sequence, string Arm, string Point, string Alignment, string Slot)
         {
-            string strMsg = string.Empty;
-            string Parameter01 = string.Empty;
-
+            string commandStr = "";
             switch (Supplier)
             {
                 case "SANWA":
-
-                    Parameter01 = string.Format("{0},{1},{2},{3},{4}", Point, Slot, Arm, Alignment, "0");
-                    strMsg = CommandAssembly(Supplier, Address, Sequence, "CMD", "GetWafer", Parameter01.Split(','));
+                    commandStr = "${0}{1}CMD:GET__:{2},{3},{4},{5},{6}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm, Alignment, "0") + EndCode();
                     break;
                 case "ATEL_NEW":
-                    Parameter01 = string.Format("{0},{1},{2},{3}", Point, Slot, Arm, "0");
-                    strMsg = CommandAssembly(Supplier, Address, Sequence, "CMD", "GetWafer", Parameter01.Split(','));
+                    commandStr = "${0}{1}CMD:GET__:{2},{3},{4},{5}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm, "0") + EndCode();
                     break;
-                case "KAWASAKI":
-                    Parameter01 = string.Format("{0},{1},{2},{3}", Address.ToString(), Arm, Point, Slot);
-                    strMsg = CommandAssembly(Supplier, Address, Sequence, "CMD", "GetWafer", Parameter01.Split(','));
-                    break;
-
-                case "ATEL":
-                    strMsg = RunMacro(Address, Sequence, GetMacroValue(Address, "IGET", Arm, Point, Slot));
-                    break;
+                default:
+                    throw new NotSupportedException();
             }
-
-            return strMsg;
+            return commandStr;
         }
 
         /// <summary>
@@ -251,15 +353,22 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string GetWaferToContinue(string Address, string Sequence, string Arm, string Point, string Alignment, string Slot)
         {
+            string commandStr = "";
             switch (Supplier)
             {
+                case "SANWA":
 
+                    commandStr = "${0}{1}CMD:GET__:{2},{3},{4},{5},{6}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm, Alignment, "3") + EndCode();
+                    break;
                 case "ATEL_NEW":
-                    return CommandAssembly(Supplier, Address, Sequence, "CMD", "GetWafer", Point, Slot, Arm, "3");
-
+                    commandStr = "${0}{1}CMD:GET__:{2},{3},{4},{5}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm, "3") + EndCode();
+                    break;
                 default:
-                    return CommandAssembly(Supplier, Address, Sequence, "CMD", "GetWafer", Point, Slot, Arm, Alignment, "3");
+                    throw new NotSupportedException();
             }
+            return commandStr;
         }
 
         /// <summary>
@@ -272,7 +381,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string GetWaferToReady(string Address, string Sequence, string Arm, string Point, string Slot)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "Get_ArmToReady", Point, Slot, Arm);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}CMD:GETW_:{2},{3},{4}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -287,16 +407,21 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string GetWaferToStandBy(string Address, string Sequence, string Arm, string Point, string Alignment, string Slot)
         {
+            string commandStr = "";
             switch (Supplier)
             {
-
+                case "SANWA":
+                    commandStr = "${0}{1}CMD:GET__:{2},{3},{4},{5},{6}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm, Alignment, "1") + EndCode();
+                    break;
                 case "ATEL_NEW":
-                    return CommandAssembly(Supplier, Address, Sequence, "CMD", "GetWafer", Point, Slot, Arm, "1");
-
+                    commandStr = "${0}{1}CMD:GET__:{2},{3},{4},{5}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm, "1") + EndCode();
+                    break;
                 default:
-                    return CommandAssembly(Supplier, Address, Sequence, "CMD", "GetWafer", Point, Slot, Arm, Alignment, "1");
-
+                    throw new NotSupportedException();
             }
+            return commandStr;
         }
 
         /// <summary>
@@ -311,15 +436,21 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string GetWaferToUp(string Address, string Sequence, string Arm, string Point, string Alignment, string Slot)
         {
+            string commandStr = "";
             switch (Supplier)
             {
-
+                case "SANWA":
+                    commandStr = "${0}{1}CMD:GET__:{2},{3},{4},{5},{6}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm, Alignment, "2") + EndCode();
+                    break;
                 case "ATEL_NEW":
-                    return CommandAssembly(Supplier, Address, Sequence, "CMD", "GetWafer", Point, Slot, Arm, "2");
-
+                    commandStr = "${0}{1}CMD:GET__:{2},{3},{4},{5}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm, "2") + EndCode();
+                    break;
                 default:
-                    return CommandAssembly(Supplier, Address, Sequence, "CMD", "GetWafer", Point, Slot, Arm, Alignment, "2"); ;
+                    throw new NotSupportedException();
             }
+            return commandStr;
         }
 
         /// <summary>
@@ -330,34 +461,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Home(string Address, string Sequence)
         {
-            string Parameter01 = string.Empty;
-
+            string commandStr = "";
             switch (Supplier)
             {
                 case "SANWA":
                 case "ATEL_NEW":
-                    Parameter01 = null;
+                    commandStr = "${0}{1}CMD:HOME_";
+                    commandStr = string.Format(commandStr, Address, Sequence) + EndCode();
                     break;
-
-                case "KAWASAKI":
-                    Parameter01 = Address.ToString();
-                    break;
+                default:
+                    throw new NotSupportedException();
             }
-
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "Home", Parameter01);
-        }
-
-        /// <summary>
-        /// 指定 軸移動至 HOME 位置:Normal Home [ ATEL ]
-        /// </summary>
-        /// <param name="Address"> Equipment Address </param>
-        /// <param name="Sequence"> Euuipment Sequence </param>
-        /// <returns></returns>
-        public string Home(string Address, string Sequence, string axis, string speed)
-        {
-            string Parameter01 = string.Empty;
-
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "Home", axis, speed);
+            return commandStr;
         }
 
         /// <summary>
@@ -368,9 +483,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string HomeOrgin(string Address, string Sequence)
         {
-            string Parameter01 = Supplier == "KAWASAKI" ? Address.ToString() : null;
-
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "HOMEToOrgin", Parameter01);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}CMD:RHOME";
+                    commandStr = string.Format(commandStr, Address, Sequence) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -381,7 +505,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string HomeSafety(string Address, string Sequence)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "HOMEToSafety", null);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}CMD:SHOME";
+                    commandStr = string.Format(commandStr, Address, Sequence) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -392,7 +527,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string LogSave(string Address, string Sequence)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "LogSave");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:LOGSV";
+                    commandStr = string.Format(commandStr, Address, Sequence) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -404,20 +550,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string MapList(string Address, string Sequence, string no)
         {
-            string Parameter01 = string.Empty;
-            string CMD = Supplier == "SANWA" ? "GET" : "GET";
-            string Command = Supplier == "KAWASAKI" ? "MappingGet" : "Mapping";
-
-            if (Supplier == "SANWA" || Supplier == "ATEL_NEW")
+            string commandStr = "";
+            switch (Supplier)
             {
-                Parameter01 = no;
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}GET:MAP__:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence, no) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
             }
-            else if (Supplier == "KAWASAKI")
-            {
-                Parameter01 = string.Format("{0},{1}", Address.ToString(), no);
-            }
-
-            return CommandAssembly(Supplier, Address, Sequence, CMD, Command, Parameter01.Split(','));
+            return commandStr;
         }
 
         /// <summary>
@@ -431,18 +575,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Mapping(string Address, string Sequence, string pno, string col, string slot)
         {
-            string Parameter01 = string.Empty;
-
-            if (Supplier == "SANWA" || Supplier == "ATEL_NEW")
+            string commandStr = "";
+            switch (Supplier)
             {
-                Parameter01 = string.Format("{0},{1},{2}", pno, col, slot);
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}CMD:MAP__:{2},{3},{4}";
+                    commandStr = string.Format(commandStr, Address, Sequence, pno, col, slot) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
             }
-            else if (Supplier == "KAWASAKI")
-            {
-                Parameter01 = string.Format("{0},{1}", Address.ToString(), pno);
-            }
-
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "Mapping", Parameter01.Split(','));
+            return commandStr;
         }
 
         /// <summary>
@@ -454,19 +598,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Mode(string Address, string Sequence, string vl)
         {
-            string Parameter01 = string.Empty;
-            string CMD = Supplier == "SANWA" ? "SET" : "SET";
-
-            if (Supplier == "SANWA" || Supplier == "ATEL_NEW")
+            string commandStr = "";
+            switch (Supplier)
             {
-                Parameter01 = vl;
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:MODE_:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence, vl) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
             }
-            else if (Supplier == "KAWASAKI")
-            {
-                Parameter01 = vl;
-            }
-
-            return CommandAssembly(Supplier, Address, Sequence, CMD, "Mode", Parameter01.Split(','));
+            return commandStr;
         }
 
         /// <summary>
@@ -477,10 +620,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string GetMode(string Address, string Sequence)
         {
-            string CMD = Supplier == "SANWA" ? "GET" : "GET";
-            //string CMDType = Supplier == "SANWA" ? "Mode" : "ModeGet";
-            string CMDType = Supplier == "KAWASAKI" ? "ModeGet" : "Mode";
-            return CommandAssembly(Supplier, Address, Sequence, CMD, CMDType, null);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}GET:MODE_";
+                    commandStr = string.Format(commandStr, Address, Sequence) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -494,18 +645,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string MoveDirect(string Address, string Sequence, string axis, string type, string pos)
         {
-            string Parameter01 = string.Empty;
-
-            if (Supplier == "SANWA" || Supplier == "ATEL_NEW")
+            string commandStr = "";
+            switch (Supplier)
             {
-                Parameter01 = string.Format("{0},{1},{2}", axis, type, pos);
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}CMD:MOVED:{2},{3},{4}";
+                    commandStr = string.Format(commandStr, Address, Sequence, axis, type, pos) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
             }
-            else if (Supplier == "KAWASAKI")
-            {
-                Parameter01 = string.Format("{0},{1},{2}", Address.ToString(), axis, pos);
-            }
-
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "MoveDirect", Parameter01.Split(','));
+            return commandStr;
         }
 
         /// <summary>
@@ -518,10 +669,10 @@ namespace SANWA.Utility
         /// <param name="Slot"> Slot </param>
         /// <param name="LocationCode"> Location Code </param>
         /// <returns></returns>
-        public string MovePosition(string Address, string Sequence, string axis, string Pos, string Slot, string LocationCode)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "MovePosition", Address.ToString(), axis, Pos, Slot, LocationCode);
-        }
+        //public string MovePosition(string Address, string Sequence, string axis, string Pos, string Slot, string LocationCode)
+        //{
+        //    return CommandAssembly(Supplier, Address, Sequence, "CMD", "MovePosition", Address.ToString(), axis, Pos, Slot, LocationCode);
+        //}
 
         /// <summary>
         /// 移動到相對位置 - only Kawasaki
@@ -532,10 +683,10 @@ namespace SANWA.Utility
         /// <param name="MoveData"> 移動數值 </param>
         /// <param name="MoveMode"> 移動模式 </param>
         /// <returns></returns>
-        public string MoveRelativePosition(string Address, string Sequence, string axis, string MoveData, string MoveMode)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "MoveRelativePosition", Address.ToString(), axis, MoveData, MoveMode);
-        }
+        //public string MoveRelativePosition(string Address, string Sequence, string axis, string MoveData, string MoveMode)
+        //{
+        //    return CommandAssembly(Supplier, Address, Sequence, "CMD", "MoveRelativePosition", Address.ToString(), axis, MoveData, MoveMode);
+        //}
 
         /// <summary>
         /// Multi Panel  選擇命令
@@ -562,7 +713,17 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string MultiPanel(string Address, string Sequence, string arm, string no1, string no2, string no3, string no4, string no5, string no6, string no7, string no8, string no9, string no10, string no11, string no12, string no13, string no14, string no15, string no16)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "MultiPanel", arm, no1, no2, no3, no4, no5, no6, no7, no8, no9, no10, no11, no12, no13, no14, no15, no16);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                    commandStr = "${0}{1}CMD:MOVED:{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18}";
+                    commandStr = string.Format(commandStr, Address, Sequence, arm, no1, no2, no3, no4, no5, no6, no7, no8, no9, no10, no11, no12, no13, no14, no15, no16) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -573,7 +734,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string OrginSearch(string Address, string Sequence)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "OrginSearch");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}CMD:ORG__";
+                    commandStr = string.Format(commandStr, Address, Sequence) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -585,7 +757,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string OrginSearchByAxis(string Address, string Sequence, string axis)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "OrginSearchSingle", axis);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}CMD:EORG_:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence, axis) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -598,25 +781,22 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Parameter(string Address, string Sequence, string Type, string No)
         {
-            string CMD = Supplier == "SANWA" ? "GET" : "GET";
-            string Command = Supplier == "KAWASAKI" ? "ParameterGet" : "Parameter";
-
-            string Parameter01 = string.Empty;
-
-            if (Supplier == "SANWA" || Supplier == "ATEL_NEW")
+            string commandStr = "";
+            switch (Supplier)
             {
-                Parameter01 = string.Format("{0},{1}", Type, No);
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:PARAM:{2},{3}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Type, No) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
             }
-            else if (Supplier == "KAWASAKI")
-            {
-                Parameter01 = No;
-            }
-
-            return CommandAssembly(Supplier, Address, Sequence, CMD, Command, Parameter01.Split(','));
+            return commandStr;
         }
 
         /// <summary>
-        /// 設定 Robot 指定站點參數
+        /// 設定 Robot 指定站點參數 - only Kawasaki
         /// </summary>
         /// <param name="Address"> Equipment Address </param>
         /// <param name="Sequence"> Euuipment Sequence </param>
@@ -624,23 +804,23 @@ namespace SANWA.Utility
         /// <param name="No"> Parameter Name </param>
         /// <param name="Data"> Parameter Data </param>
         /// <returns></returns>
-        public string setParameterStation(string Address, string Sequence, string Point, string No, string Data)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "ParameterStation", Address.ToString(), Point, No, Data);
-        }
+        //public string setParameterStation(string Address, string Sequence, string Point, string No, string Data)
+        //{
+        //    return CommandAssembly(Supplier, Address, Sequence, "SET", "ParameterStation", Address.ToString(), Point, No, Data);
+        //}
 
         /// <summary>
-        /// 取回 Robot 指定站點參數
+        /// 取回 Robot 指定站點參數 - only Kawasaki
         /// </summary>
         /// <param name="Address"> Equipment Address </param>
         /// <param name="Sequence"> Euuipment Sequence </param>
         /// <param name="Point"> Station Code </param>
         /// <param name="No"> Parameter Name </param>
         /// <returns></returns>
-        public string ParameterStation(string Address, string Sequence, string Point, string No)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "ParameterStationGet", Address.ToString(), Point, No);
-        }
+        //public string ParameterStation(string Address, string Sequence, string Point, string No)
+        //{
+        //    return CommandAssembly(Supplier, Address, Sequence, "GET", "ParameterStationGet", Address.ToString(), Point, No);
+        //}
 
         /// <summary>
         /// 取得 Robot 參數詳細資料
@@ -652,7 +832,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string PARSY(string Address, string Sequence, string Type, string No)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "PARSY", Type, No);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}GET:PARSY:{2},{3}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Type, No) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -663,7 +854,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string PointLoad(string Address, string Sequence)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "PointLoad");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:LOADP";
+                    commandStr = string.Format(commandStr, Address, Sequence) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -674,7 +876,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string PointSave(string Address, string Sequence)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "PointSave");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:SAVEP";
+                    commandStr = string.Format(commandStr, Address, Sequence) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -683,10 +896,10 @@ namespace SANWA.Utility
         /// <param name="Address"> Equipment Address </param>
         /// <param name="Sequence"> Euuipment Sequence </param>
         /// <returns></returns>
-        public string CurrentPosition(string Address, string Sequence)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "CurrentPosition", Address.ToString());
-        }
+        //public string CurrentPosition(string Address, string Sequence)
+        //{
+        //    return CommandAssembly(Supplier, Address, Sequence, "GET", "CurrentPosition", Address.ToString());
+        //}
 
         /// <summary>
         /// 取回座標位置 only Kawasaki
@@ -695,10 +908,10 @@ namespace SANWA.Utility
         /// <param name="Sequence"> Euuipment Sequence </param>
         /// <param name="Arm"> 手臂 </param>
         /// <returns></returns>
-        public string CurrentCoordinatePosition(string Address, string Sequence, string Arm)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "CurrentCoordinatePosition", Address.ToString(), Arm);
-        }
+        //public string CurrentCoordinatePosition(string Address, string Sequence, string Arm)
+        //{
+        //    return CommandAssembly(Supplier, Address, Sequence, "GET", "CurrentCoordinatePosition", Address.ToString(), Arm);
+        //}
 
         /// <summary>
         /// 取回當前機器人最近的位置和Slot only Kawasaki
@@ -707,10 +920,10 @@ namespace SANWA.Utility
         /// <param name="Sequence"> Euuipment Sequence </param>
         /// <param name="Arm"> 手臂 </param>
         /// <returns></returns>
-        public string NearestStation(string Address, string Sequence, string Arm)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "NearestStation", Address.ToString(), Arm);
-        }
+        //public string NearestStation(string Address, string Sequence, string Arm)
+        //{
+        //    return CommandAssembly(Supplier, Address, Sequence, "GET", "NearestStation", Address.ToString(), Arm);
+        //}
 
         /// <summary>
         /// 放片 [ SANWA, KAWASAKI, ATEL ]
@@ -723,28 +936,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string PutWafer(string Address, string Sequence, string Arm, string Point, string Slot)
         {
-            string strMsg = string.Empty;
-            string Parameter01 = string.Empty;
-
+            string commandStr = "";
             switch (Supplier)
             {
                 case "SANWA":
                 case "ATEL_NEW":
-                    Parameter01 = string.Format("{0},{1},{2},{3}", Point, Slot, Arm, "0");
-                    strMsg = CommandAssembly(Supplier, Address, Sequence, "CMD", "PutWafer", Parameter01.Split(','));
+                    commandStr = "${0}{1}CMD:PUT__:{2},{3},{4},{5}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm, "0") + EndCode();
                     break;
-
-                case "KAWASAKI":
-                    Parameter01 = string.Format("{0},{1},{2},{3}", Address.ToString(), Arm, Point, Slot);
-                    strMsg = CommandAssembly(Supplier, Address, Sequence, "CMD", "PutWafer", Parameter01.Split(','));
-                    break;
-
-                case "ATEL":
-                    strMsg = RunMacro(Address, Sequence, GetMacroValue(Address, "IPUT", Arm, Point, Slot));
-                    break;
+                default:
+                    throw new NotSupportedException();
             }
-
-            return strMsg;
+            return commandStr;
         }
 
         /// <summary>
@@ -758,7 +961,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string PutWaferToContinue(string Address, string Sequence, string Arm, string Point, string Slot)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "PutWafer", Point, Slot, Arm, "3");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}CMD:PUT__:{2},{3},{4},{5}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm, "3") + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -773,7 +987,18 @@ namespace SANWA.Utility
         public string PutWaferToDown(string Address, string Sequence, string Arm, string Point, string Slot)
         {
 
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "PutWafer", Point, Slot, Arm, "2");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}CMD:PUT__:{2},{3},{4},{5}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm, "2") + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -787,7 +1012,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string PutWaferToReady(string Address, string Sequence, string Arm, string Point, string Slot)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "Put_ArmToReady", Point, Slot, Arm);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}CMD:PUTW_:{2},{3},{4}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -801,7 +1037,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string PutWaferToStandBy(string Address, string Sequence, string Arm, string Point, string Slot)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "PutWafer", Point, Slot, Arm, "1");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}CMD:PUT__:{2},{3},{4},{5}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Point, Slot, Arm, "1") + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -812,7 +1059,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Retract(string Address, string Sequence)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "ArmRetract", null);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}CMD:RET__";
+                    commandStr = string.Format(commandStr, Address, Sequence) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -823,7 +1081,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Save(string Address, string Sequence)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "Save");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:SAVE_";
+                    commandStr = string.Format(commandStr, Address, Sequence) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -837,20 +1106,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string setParameter(string Address, string Sequence, string Type, string No, string Data)
         {
-            string CMD = Supplier == "SANWA" ? "SET" : "SET";
-
-            string Parameter01 = string.Empty;
-
-            if (Supplier == "SANWA" || Supplier == "ATEL_NEW")
+            string commandStr = "";
+            switch (Supplier)
             {
-                Parameter01 = string.Format("{0},{1},{2}", Type, No, Data);
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:PARAM:{2},{3},{4}";
+                    commandStr = string.Format(commandStr, Address, Sequence, Type, No, Data) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
             }
-            else if (Supplier == "KAWASAKI")
-            {
-                Parameter01 = string.Format("{0},{1}", No, Data);
-            }
-
-            return CommandAssembly(Supplier, Address, Sequence, CMD, "Parameter", Parameter01.Split(','));
+            return commandStr;
         }
 
         /// <summary>
@@ -864,7 +1131,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string setSettingPointParameter(string Address, string Sequence, string pno, string no, string data)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "SetPointParameter", pno, no, data);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:PDATA:{2},{3},{4}";
+                    commandStr = string.Format(commandStr, Address, Sequence, pno, no, data) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -877,7 +1155,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string setSolenoidValve(string Address, string Sequence, string no, string vl)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "SolenoidValve", no, vl);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:SV___:{2},{3}";
+                    commandStr = string.Format(commandStr, Address, Sequence, no, vl) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -889,27 +1178,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string setSpeed(string Address, string Sequence, string vl)
         {
-            string Parameter01 = string.Empty;
-
-            if (Supplier == "KAWASAKI")
+            string commandStr = "";
+            switch (Supplier)
             {
-                Parameter01 = string.Format("{0},{1}", Address.ToString(), vl);
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:SP___:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence, vl) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
             }
-            else
-            {
-                Parameter01 = vl;
-            }
-
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "DeviceStatusSpeed", Parameter01.Split(','));
-        }
-
-        public string setSv(string Address, string Sequence, string no, string vl)
-        {
-            string result = "$" + Address + "SET:SV___:" + no + "," + vl;
-
-
-
-            return result + "\r";
+            return commandStr;
         }
 
         /// <summary>
@@ -921,34 +1201,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string setSpeed(string Address, string Sequence, string axis, string vl)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "DeviceStatusSpeedAxis", axis, vl);
-        }
-
-        /// <summary>
-        /// 各軸 Speed 限制細項設定 [ ATEL ]
-        /// </summary>
-        /// <param name="Address"> Equipment Address </param>
-        /// <param name="Sequence"> Euuipment Sequence </param>
-        /// <param name="axis"> 讀取各個單軸設定 </param>
-        /// <param name="vl"> Speed 限制，1000~99999 </param>
-        /// <returns></returns>
-        public string setSpeedDetail(string Address, string Sequence, string axis, string vl)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "DeviceStatusSpeedDetail", axis, vl);
-        }
-
-        /// <summary>
-        /// 各個單軸馬達速度限制設定  [ ATEL ]
-        /// </summary>
-        /// <param name="Address"> Equipment Address </param>
-        /// <param name="Sequence"> Euuipment Sequence </param>
-        /// <param name="data"></param>
-        /// <param name="axis"> 讀取各個單軸設定 </param>
-        /// <param name="vl"> Speed 限制，1000~99999 </param>
-        /// <returns></returns>
-        public string setSpeedMotor(string Address, string Sequence, string data, string axis, string vl)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "DeviceStatusSpeedMotor", data, axis, vl);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:SP___:{2},{3}";
+                    commandStr = string.Format(commandStr, Address, Sequence, axis, vl) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -961,9 +1225,19 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string setStatusIO(string Address, string Sequence, string no, string vl)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "DeviceStatusIO", no, vl);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:RIO__:{2},{3}";
+                    commandStr = string.Format(commandStr, Address, Sequence, no, vl) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
-
         /// <summary>
         /// 將目前各軸的位置寫入指定的 Point Data
         /// </summary>
@@ -973,54 +1247,24 @@ namespace SANWA.Utility
         /// <param name="arm"> Kawasaki 用 </param>
         /// <param name="slot"> Kawasaki 用 </param>
         /// <returns></returns>
-        public string setTeachPoint(string Address, string Sequence, string pno, string arm, string slot)
+        public string setTeachPoint(string Address, string Sequence, string pno)
         {
-            string Parameter01 = string.Empty;
-            string CMD = Supplier == "KAWASAKI" ? "CMD" : "SET";
-
-            if (Supplier == "SANWA" || Supplier == "ATEL_NEW")
+            string commandStr = "";
+            switch (Supplier)
             {
-                Parameter01 = pno;
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:TEACH:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence, pno) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
             }
-            else if (Supplier == "KAWASAKI")
-            {
-                Parameter01 = string.Format("{0},{1}", Address.ToString(), arm, pno, slot);
-            }
-
-            return CommandAssembly(Supplier, Address, Sequence, CMD, "Teach", Parameter01.Split(','));
+            return commandStr;
         }
 
-        /// <summary>
-        /// 將目前各軸的位置寫入指定的 Point Data
-        /// </summary>
-        /// <param name="Address"> Equipment Address </param>
-        /// <param name="Sequence"> Euuipment Sequence </param>
-        /// <param name="pno"> Sanwa : Teaching  點位(0001 ~ 1999)  Kawasaki (P1~P15) </param>
-        /// <param name="J2Data"> J2 </param>
-        /// <param name="J3Data"> J3 </param>
-        /// <param name="J4Data"> J4 </param>
-        /// <param name="J6Data"> J6 </param>
-        /// <param name="J7Data"> J7 </param>
-        /// <returns></returns>
-        public string setTeachPoint(string Address, string Sequence, string pno, string J2Data, string J3Data, string J4Data, string J6Data, string J7Data)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "TeachS", Address.ToString(), pno, "NULL", J2Data, J3Data, J4Data, "NULL", J6Data, J7Data);
-        }
-
-        /// <summary>
-        /// 將目前各軸的位置 X Y Z 寫入指定的 Point Data
-        /// </summary>
-        /// <param name="Address"> Equipment Address </param>
-        /// <param name="Sequence"> Euuipment Sequence </param>
-        /// <param name="pno"> Sanwa : Teaching  點位(0001 ~ 1999)  Kawasaki (P1~P15) </param>
-        /// <param name="arm"> Kawasaki 用 </param>
-        /// <param name="slot"> Kawasaki 用 </param>
-        /// <returns></returns>
-        public string setTeachPointXYZ(string Address, string Sequence, string pno, string XData, string YData, string ZData, string OData)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "TeachXYZ", "NULL", XData, YData, ZData, OData);
-        }
-
+        
+       
         /// <summary>
         /// 取得指定點位欄位的資訊
         /// </summary>
@@ -1031,7 +1275,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string SettingPointParameter(string Address, string Sequence, string pno, string no)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "SetPointParameter", pno, no);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}GET:PDATA:{2},{3}";
+                    commandStr = string.Format(commandStr, Address, Sequence, pno,no) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -1043,7 +1298,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string SlotThickness(string Address, string Sequence, string no)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "SlotThickness", no);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}GET:MAPT_:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence, no) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -1055,7 +1321,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string SolenoidValve(string Address, string Sequence, string no)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "SolenoidValve", no);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}GET:SV___:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence, no) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -1066,37 +1343,21 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Speed(string Address, string Sequence)
         {
-            string Parameter01 = string.Empty;
-            string Command = string.Empty;
-
+            string commandStr = "";
             switch (Supplier)
             {
                 case "SANWA":
                 case "ATEL_NEW":
-                    Parameter01 = null;
-                    Command = "DeviceStatusSpeed";
+                    commandStr = "${0}{1}GET:SP___";
+                    commandStr = string.Format(commandStr, Address, Sequence) + EndCode();
                     break;
-
-                case "KAWASAKI":
-                    Parameter01 = Address.ToString();
-                    Command = "DeviceStatusSpeedGet";
-                    break;
+                default:
+                    throw new NotSupportedException();
             }
-
-            return CommandAssembly(Supplier, Address, Sequence, "GET", Command, Parameter01);
+            return commandStr;
         }
 
-        /// <summary>
-        /// 各軸 Speed 限制細項取得 [ ATEL ]
-        /// </summary>
-        /// <param name="Address"> Equipment Address </param>
-        /// <param name="Sequence"> Euuipment Sequence </param>
-        /// <param name="data"> 讀取各個單軸設定 </param>
-        /// <returns></returns>
-        public string SpeedDetail(string Address, string Sequence, string data)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "DeviceStatusSpeedDetail", data);
-        }
+      
 
         /// <summary>
         /// Robot 狀態取得 [ SANWA, KAWASAKI, ATEL ]
@@ -1106,20 +1367,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string Status(string Address, string Sequence)
         {
-            string Parameter01 = Supplier == "KAWASAKI" ? Address.ToString() : null;
-
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "DeviceStatus", Parameter01);
-        }
-
-        /// <summary>
-        /// Robot 合併狀態取得 only Kawasaki
-        /// </summary>
-        /// <param name="Address"> Equipment Address </param>
-        /// <param name="Sequence"> Euuipment Sequence </param>
-        /// <returns></returns>
-        public string CombinedStatus(string Address, string Sequence)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "CombinedDeviceStatus", Address.ToString());
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}GET:STS__";
+                    commandStr = string.Format(commandStr, Address, Sequence) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -1131,7 +1390,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string StatusIO(string Address, string Sequence, string nol)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "DeviceStatusIO", nol);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}GET:RIO__:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence,nol) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -1142,7 +1412,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string STPDO(string Address, string Sequence)
         {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "STPDO");
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}SET:STPDO";
+                    commandStr = string.Format(commandStr, Address, Sequence) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -1154,36 +1435,20 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string TeachPoint(string Address, string Sequence, string pno)
         {
-            string CMD = Supplier == "SANWA" ? "GET" : "GET";
-            string Command = Supplier == "KAWASAKI" ? "TeachGet" : "Teach";
-
-            return CommandAssembly(Supplier, Address, Sequence, CMD, Command, pno);
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}GET:TEACH:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence,pno) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
-
-        /// <summary>
-        /// 取消 Point Data - only Kawasaki
-        /// </summary>
-        /// <param name="Address"> Equipment Address </param>
-        /// <param name="Sequence"> Euuipment Sequence </param>
-        /// <param name="pno"> Teach  點位  </param>
-        /// <returns></returns>
-        public string CancelTeachPoint(string Address, string Sequence, string pno)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "SET", "TeachCancel", pno);
-        }
-
-        /// <summary>
-        /// 讀取 Point Data XYZ Coordinate - only Kawasaki
-        /// </summary>
-        /// <param name="Address"> Equipment Address </param>
-        /// <param name="Sequence"> Euuipment Sequence </param>
-        /// <param name="pno"> Teach  點位  </param>
-        /// <returns></returns>
-        public string TeachPointXYZ(string Address, string Sequence, string pno)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "TeachXYZGet", pno);
-        }
-
+   
         /// <summary>
         /// Panel(Wafer)保持  : Panel(Wafer) Hold
         /// </summary>
@@ -1193,9 +1458,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string WaferHold(string Address, string Sequence, string arm)
         {
-            string Parameter01 = Supplier == "KAWASAKI" ? (Address.ToString() + "," + arm) : arm;
-
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "WaferHold", Parameter01.Split(','));
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}CMD:WHLD_:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence, arm) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -1207,9 +1481,18 @@ namespace SANWA.Utility
         /// <returns></returns>
         public string WaferReleaseHold(string Address, string Sequence, string arm)
         {
-            string Parameter01 = Supplier == "KAWASAKI" ? (Address.ToString() + "," + arm) : arm;
-
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "WaferRelease", Parameter01.Split(','));
+            string commandStr = "";
+            switch (Supplier)
+            {
+                case "SANWA":
+                case "ATEL_NEW":
+                    commandStr = "${0}{1}CMD:WRLS_:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence, arm) + EndCode();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            return commandStr;
         }
 
         /// <summary>
@@ -1220,537 +1503,23 @@ namespace SANWA.Utility
         /// <param name="arm"> Sanwa 用判 Arm  選擇 </param>
         /// <param name="pno"> Kawasaki 用 需輸入點位 </param>
         /// <returns></returns>
-        public string WaferStatus(string Address, string Sequence, string arm, string pno)
+        public string WaferStatus(string Address, string Sequence, string arm)
         {
-            string CMD = Supplier == "KAWASAKI" ? "CMD" : "GET";
-            string Parameter01 = string.Empty;
-
-            if (Supplier == "SANWA" || Supplier == "ATEL_NEW")
-            {
-                Parameter01 = arm;
-            }
-            else if (Supplier == "KAWASAKI")
-            {
-                Parameter01 = string.Format("{0},{1}", Address.ToString(), pno);
-            }
-
-            return CommandAssembly(Supplier, Address, Sequence, CMD, "WaferStatus", Parameter01);
-        }
-
-        /// <summary>
-        /// 端面檢出 : Edge Search
-        /// </summary>
-        /// <param name="Address"> Equipment Address </param>
-        /// <param name="Sequence"> Euuipment Sequence </param>
-        /// <param name="pno"> Point 編號。(0001 ~ 1999) </param>
-        /// <param name="arm"> Arm 選擇。  ( 1~2 ) </param>
-        /// <returns></returns>
-        public string EdgeSearch(string Address, string Sequence, string pno, string arm)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "EdgeSearch", pno, arm);
-        }
-
-        /// <summary>
-        /// Fork 開合位置變更 : Fork
-        /// </summary>
-        /// <param name="Address"> Equipment Address </param>
-        /// <param name="Sequence"> Euuipment Sequence </param>
-        /// <param name="arm"> Arm 選擇。  ( 1~2 ) </param>
-        /// <param name="fork"> 開合位置選擇  ( 0~3 ) </param>
-        /// <param name="vac"> Pad 電磁閥選擇  ( 0~3 ) </param>
-        /// <returns></returns>
-        public string Fork(string Address, string Sequence, string arm, string fork, string vac)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "Fork", arm, fork, vac);
-        }
-
-        /// <summary>
-        /// Fork Calibration
-        /// </summary>
-        /// <param name="Address"> Equipment Address </param>
-        /// <param name="Sequence"> Euuipment Sequence </param>
-        /// <param name="arm"> Arm 選擇。  ( 1~3 ) </param>
-        /// <returns></returns>
-        public string ForkCalibration(string Address, string Sequence, string arm)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "ForkCalibration", arm);
-        }
-
-        public string setDateTime(string Address, string Sequence, string DataTime)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "DateTime", DataTime);
-        }
-
-        public string DateTime(string Address, string Sequence)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "DateTimeGet", null);
-        }
-
-        /// <summary>
-        /// 讀取 ROBOT ID 與版本 [ KAWASAKI ]
-        /// </summary>
-        /// <param name="Address"></param>
-        /// <param name="Sequence"></param>
-        /// <returns></returns>
-        public string RobotIDAndVersion(string Address, string Sequence)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "RobotVersionGet", null);
-        }
-
-        /// <summary>
-        /// 讀取硬體版本 [ KAWASAKI ]
-        /// </summary>
-        /// <param name="Address"></param>
-        /// <param name="Sequence"></param>
-        /// <returns></returns>
-        public string RobotHardwareVersion(string Address, string Sequence)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "RobotHardwareVersion", null);
-        }
-
-        /// <summary>
-        /// 讀取軟體版本 [ KAWASAKI, ATEL ]
-        /// </summary>
-        /// <param name="Address"></param>
-        /// <param name="Sequence"></param>
-        /// <returns></returns>
-        public string RobotSoftwareVersion(string Address, string Sequence)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "RobotSoftwareVersion", null);
-        }
-
-        /// <summary>
-        /// 讀取 Macro 狀態 [ ATEL ]
-        /// </summary>
-        /// <param name="Address"></param>
-        /// <param name="Sequence"></param>
-        /// <param name="no"></param>
-        /// <returns></returns>
-        public string ReadMacroStatus(string Address, string Sequence)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "GET", "ReadMacroStatus");
-        }
-
-        /// <summary>
-        /// 執行 Macro [ ATEL ]
-        /// </summary>
-        /// <param name="Address"></param>
-        /// <param name="Sequence"></param>
-        /// <param name="no"></param>
-        /// <returns></returns>
-        public string RunMacro(string Address, string Sequence, string no)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "RunMacro", no);
-        }
-
-        /// <summary>
-        /// Macro 停止 [ ATEL ]
-        /// </summary>
-        /// <param name="Address"></param>
-        /// <param name="Sequence"></param>
-        /// <param name="no"></param>
-        /// <returns></returns>
-        public string StopMacro(string Address, string Sequence, string no)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "StopMacro", no);
-        }
-
-
-        /// <summary>
-        /// Macro 結束命令 [ ATEL ]
-        /// </summary>
-        /// <param name="Address"></param>
-        /// <param name="Sequence"></param>
-        /// <returns></returns>
-        public string MacroEndConnand(string Address, string Sequence)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "MacroEndConnand");
-        }
-
-        /// <summary>
-        /// Macro 一時停止/解除一時停止 [ ATEL ]
-        /// </summary>
-        /// <param name="Address"></param>
-        /// <param name="Sequence"></param>
-        /// <param name="Active"></param>
-        /// <returns></returns>
-        public string PauseMacro(string Address, string Sequence, string Active)
-        {
-            return CommandAssembly(Supplier, Address, Sequence, "CMD", "PauseMacro", Active);
-        }
-
-        private string CommandAssembly(string Supplier, string Address, string Sequence, string CommandType, string Command, params string[] Parameter)
-        {
-            string strCommand = string.Empty;
-            string strCommandFormat = string.Empty;
-            string strCommandFormatParameter = string.Empty;
-            DataTable dtTemp;
-            DataView dvTemp;
-            ContainerSet container;
-            StringBuilder sbTemp;
-            string[] strsParameter;
-
-            try
-            {
-                container = new ContainerSet();
-                sbTemp = new StringBuilder();
-
-                var query = (from a in dtRobotCommand.AsEnumerable()
-                             where a.Field<string>("node_type") == "ROBOT"
-                                && a.Field<string>("vendor") == Supplier
-                                && a.Field<string>("code_type") == CommandType
-                                && a.Field<string>("Action_Function") == Command
-                             select a).ToList();
-
-                if (query.Count == 0)
-                {
-                    throw new RowNotInTableException();
-                }
-
-                dtTemp = query.CopyToDataTable();
-                dtTemp.DefaultView.Sort = "Parameter_Order ASC";
-                dvTemp = dtTemp.DefaultView;
-
-                switch (Supplier)
-                {
-                    case "SANWA":
-                    case "ATEL_NEW":
-                        #region SANWA
-
-                        if (Parameter != null && Parameter.Length != 0)
-                        {
-                            if ((dvTemp.Table.Rows[0]["Parameter_ID"].ToString().Equals("Null")) && (Parameter.Length != dtTemp.Rows.Count))
-                            {
-                                sbTemp.Append("Equipment Type : Robot");
-                                sbTemp.AppendFormat("Equipment Supplier : {0}", Supplier);
-                                sbTemp.AppendFormat("Command Type : {0}", CommandType);
-                                sbTemp.AppendFormat("Command : {0}", Command);
-                                sbTemp.Append("Parameter list and setting list are not the same.");
-                                throw new Exception(sbTemp.ToString());
-                            }
-                        }
-
-                        strsParameter = Parameter;
-
-                        for (int i = 0; i < dvTemp.Table.Rows.Count; i++)
-                        {
-                            Int32 itTemp = 0;
-
-                            if (!dvTemp.Table.Rows[i]["Parameter_ID"].ToString().Equals("Null"))
-                            {
-                                // * 16進位比對
-                                if (dvTemp.Table.Rows[i]["Parameter_ID"].ToString().Equals("HEX"))
-                                {
-                                    if (int.Parse(dvTemp.Table.Rows[i]["Min_Value"].ToString()) > Convert.ToInt32(Parameter[i].ToString(), 16))
-                                    {
-                                        throw new Exception("Exceed the minimum.");
-                                    }
-
-                                    if (int.Parse(dvTemp.Table.Rows[i]["Max_Value"].ToString()) < Convert.ToInt32(Parameter[i].ToString(), 16))
-                                    {
-                                        throw new Exception("Exceed the maximum.");
-                                    }
-                                }
-                                else
-                                {
-                                    if (int.Parse(dvTemp.Table.Rows[i]["Min_Value"].ToString()) > int.Parse(Parameter[i].ToString()))
-                                    {
-                                        throw new Exception("Exceed the minimum.");
-                                    }
-
-                                    if (int.Parse(dvTemp.Table.Rows[i]["Max_Value"].ToString()) < int.Parse(Parameter[i].ToString()))
-                                    {
-                                        throw new Exception("Exceed the maximum.");
-                                    }
-                                }
-
-                                if (dvTemp.Table.Rows[i]["Data_Value"].ToString().Equals(string.Empty))
-                                {
-                                    if (dvTemp.Table.Rows[i]["Is_Fill"].ToString().Equals("Y"))
-                                    {
-                                        itTemp = int.Parse(Parameter[i].ToString());
-                                        strsParameter[i] = itTemp.ToString("D" + dvTemp.Table.Rows[i]["Values_length"].ToString());
-                                    }
-                                }
-                                else
-                                {
-                                    if (dvTemp.Table.Rows[i]["Data_Value"].ToString().IndexOf(Parameter[i].ToString()) < 0)
-                                    {
-                                        throw new Exception(dvTemp.Table.Rows[i]["Parameter_ID"].ToString() + ": Setting value error.");
-                                    }
-                                }
-                            }
-                        }
-
-                        strCommandFormat = container.StringFormat(dtTemp.Rows[0]["code_format"].ToString(), new string[] { Address, Sequence });
-
-                        if (strsParameter != null && strsParameter.Length != 0)
-                        {
-                            strCommandFormatParameter = container.StringFormat(dtTemp.Select(), strsParameter);
-                        }
-
-                        break;
-
-                    #endregion
-
-                    case "KAWASAKI":
-
-                        #region KAWASAKI
-
-                        if (Parameter != null && Parameter.Length != 0)
-                        {
-                            if ((dvTemp.Table.Rows[0]["Parameter_ID"].ToString().Equals("Null") || dvTemp.Table.Rows[0]["Parameter_ID"].ToString().Equals("Data") || dvTemp.Table.Rows[0]["Parameter_ID"].ToString().Equals("DateTime")
-                                ) && (Parameter.Length != dtTemp.Rows.Count))
-                            {
-                                sbTemp.Append("Equipment Type : Robot");
-                                sbTemp.AppendFormat("Equipment Supplier : {0}", Supplier);
-                                sbTemp.AppendFormat("Command Type : {0}", CommandType);
-                                sbTemp.AppendFormat("Command : {0}", Command);
-                                sbTemp.Append("Parameter list and setting list are not the same.");
-                                throw new Exception(sbTemp.ToString());
-                            }
-                        }
-
-                        strsParameter = Parameter;
-
-                        for (int i = 0; i < dvTemp.Table.Rows.Count; i++)
-                        {
-                            Int32 itTemp = 0;
-
-                            if (!dvTemp.Table.Rows[i]["Parameter_ID"].ToString().Equals("Null") && !dvTemp.Table.Rows[i]["Parameter_ID"].ToString().Equals("Data"))
-                            {
-                                // * Value mode
-                                if (dvTemp.Table.Rows[i]["Data_Value"].ToString().Equals(string.Empty))
-                                {
-                                    // * 16進位比對
-                                    if (dvTemp.Table.Rows[i]["Parameter_ID"].ToString().Equals("HEX"))
-                                    {
-                                        if (int.Parse(dvTemp.Table.Rows[i]["Min_Value"].ToString()) > Convert.ToInt32(Parameter[i].ToString(), 16))
-                                        {
-                                            throw new Exception("Exceed the minimum.");
-                                        }
-
-                                        if (int.Parse(dvTemp.Table.Rows[i]["Max_Value"].ToString()) < Convert.ToInt32(Parameter[i].ToString(), 16))
-                                        {
-                                            throw new Exception("Exceed the maximum.");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (int.Parse(dvTemp.Table.Rows[i]["Min_Value"].ToString()) > int.Parse(Parameter[i].ToString()))
-                                        {
-                                            throw new Exception("Exceed the minimum.");
-                                        }
-
-                                        if (int.Parse(dvTemp.Table.Rows[i]["Max_Value"].ToString()) < int.Parse(Parameter[i].ToString()))
-                                        {
-                                            throw new Exception("Exceed the maximum.");
-                                        }
-                                    }
-
-                                    if (dvTemp.Table.Rows[i]["Data_Value"].ToString().Equals(string.Empty))
-                                    {
-                                        if (dvTemp.Table.Rows[i]["Is_Fill"].ToString().Equals("Y"))
-                                        {
-                                            itTemp = int.Parse(Parameter[i].ToString());
-                                            strsParameter[i] = itTemp.ToString("D" + dvTemp.Table.Rows[i]["Values_length"].ToString());
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (dvTemp.Table.Rows[i]["Data_Value"].ToString().IndexOf(Parameter[i].ToString()) < 0)
-                                        {
-                                            throw new Exception(dvTemp.Table.Rows[i]["Parameter_ID"].ToString() + ": Setting value error.");
-                                        }
-                                    }
-                                }
-                                // * string mode
-                                else
-                                {
-                                    //if (dvTemp.Table.Rows[i]["Data_Value"].ToString().IndexOf(strsParameter[i].ToString()) < 0)
-                                    //{
-                                    //    throw new Exception(dvTemp.Table.Rows[i]["Data_Value"].ToString() + ": Out of setting range.");
-                                    //}
-
-                                    // * 調整文字比對方式
-                                    if (!dvTemp.Table.Rows[i]["Data_Value"].ToString().Split(',').Contains(strsParameter[i].ToString()))
-                                    {
-                                        throw new Exception(dvTemp.Table.Rows[i]["Data_Value"].ToString() + ": Out of setting range.");
-                                    }
-                                }
-
-                                if (dvTemp.Table.Rows[i]["Parameter_ID"].ToString().Equals("DateTime"))
-                                {
-                                    strsParameter[i] = Convert.ToDateTime(strsParameter[i]).ToString("yy/MM/dd HH:mm:ss");
-                                }
-                            }
-                        }
-
-                        sbTemp = new StringBuilder();
-
-                        if (strsParameter != null)
-                        {
-                            for (int i = 0; i < strsParameter.Length; i++)
-                            {
-                                sbTemp.Append(strsParameter[i].ToString());
-                                sbTemp.Append(",");
-                            }
-
-                            strCommandFormat = container.StringFormat(dtTemp.Rows[0]["code_format"].ToString().Insert(1, Sequence + ","), new string[] { ",", sbTemp.ToString().TrimEnd(',') });
-                            strCommandFormat = strCommandFormat + KawasakiCheckSum(Sequence + "," + dtTemp.Rows[0]["code_id"].ToString() + "," + sbTemp.ToString().TrimEnd(','));
-                        }
-                        else
-                        {
-                            strCommandFormat = container.StringFormat(dtTemp.Rows[0]["code_format"].ToString().Insert(1, Sequence + ","), new string[] { string.Empty, string.Empty });
-                            strCommandFormat = strCommandFormat + KawasakiCheckSum(Sequence + "," + dtTemp.Rows[0]["code_id"].ToString());
-                        }
-
-                        break;
-
-                    #endregion
-
-                    case "ATEL":
-
-                        #region ATEL
-
-                        if (Parameter != null && Parameter.Length != 0)
-                        {
-                            if ((dvTemp.Table.Rows[0]["Parameter_ID"].ToString().Equals("Null") || dvTemp.Table.Rows[0]["Parameter_ID"].ToString().Equals("Data") || dvTemp.Table.Rows[0]["Parameter_ID"].ToString().Equals("DateTime")
-                                ) && (Parameter.Length != dtTemp.Rows.Count))
-                            {
-                                sbTemp.Append("Equipment Type : Robot");
-                                sbTemp.AppendFormat("Equipment Supplier : {0}", Supplier);
-                                sbTemp.AppendFormat("Command Type : {0}", CommandType);
-                                sbTemp.AppendFormat("Command : {0}", Command);
-                                sbTemp.Append("Parameter list and setting list are not the same.");
-                                throw new Exception(sbTemp.ToString());
-                            }
-                        }
-
-                        strsParameter = Parameter;
-
-                        for (int i = 0; i < dvTemp.Table.Rows.Count; i++)
-                        {
-                            Int32 itTemp = 0;
-
-                            if (!dvTemp.Table.Rows[i]["Parameter_ID"].ToString().Equals("Null") && !dvTemp.Table.Rows[i]["Parameter_ID"].ToString().Equals("Data"))
-                            {
-                                // * Value mode
-                                if (dvTemp.Table.Rows[i]["Data_Value"].ToString().Equals(string.Empty))
-                                {
-                                    // * 16進位比對
-                                    if (dvTemp.Table.Rows[i]["Parameter_ID"].ToString().Equals("HEX"))
-                                    {
-                                        if (int.Parse(dvTemp.Table.Rows[i]["Min_Value"].ToString()) > Convert.ToInt32(Parameter[i].ToString(), 16))
-                                        {
-                                            throw new Exception("Exceed the minimum.");
-                                        }
-
-                                        if (int.Parse(dvTemp.Table.Rows[i]["Max_Value"].ToString()) < Convert.ToInt32(Parameter[i].ToString(), 16))
-                                        {
-                                            throw new Exception("Exceed the maximum.");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (int.Parse(dvTemp.Table.Rows[i]["Min_Value"].ToString()) > int.Parse(Parameter[i].ToString()))
-                                        {
-                                            throw new Exception("Exceed the minimum.");
-                                        }
-
-                                        if (int.Parse(dvTemp.Table.Rows[i]["Max_Value"].ToString()) < int.Parse(Parameter[i].ToString()))
-                                        {
-                                            throw new Exception("Exceed the maximum.");
-                                        }
-                                    }
-
-                                    if (dvTemp.Table.Rows[i]["Data_Value"].ToString().Equals(string.Empty))
-                                    {
-                                        if (dvTemp.Table.Rows[i]["Is_Fill"].ToString().Equals("Y"))
-                                        {
-                                            itTemp = int.Parse(Parameter[i].ToString());
-                                            strsParameter[i] = itTemp.ToString("D" + dvTemp.Table.Rows[i]["Values_length"].ToString());
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (dvTemp.Table.Rows[i]["Data_Value"].ToString().IndexOf(Parameter[i].ToString()) < 0)
-                                        {
-                                            throw new Exception(dvTemp.Table.Rows[i]["Parameter_ID"].ToString() + ": Setting value error.");
-                                        }
-                                    }
-                                }
-                                // * string mode
-                                else
-                                {
-                                    //if (dvTemp.Table.Rows[i]["Data_Value"].ToString().IndexOf(strsParameter[i].ToString()) < 0)
-                                    //{
-                                    //    throw new Exception(dvTemp.Table.Rows[i]["Data_Value"].ToString() + ": Out of setting range.");
-                                    //}
-
-                                    if (!strsParameter[i].ToString().Equals("Empty"))
-                                    {
-                                        // * 調整文字比對方式
-                                        if (!dvTemp.Table.Rows[i]["Data_Value"].ToString().Split(',').Contains(strsParameter[i].ToString()))
-                                        {
-                                            throw new Exception(dvTemp.Table.Rows[i]["Data_Value"].ToString() + ": Out of setting range.");
-                                        }
-                                    }
-                                }
-
-                                if (dvTemp.Table.Rows[i]["Parameter_ID"].ToString().Equals("DateTime"))
-                                {
-                                    strsParameter[i] = Convert.ToDateTime(strsParameter[i]).ToString("yy/MM/dd HH:mm:ss");
-                                }
-                            }
-                        }
-
-                        sbTemp = new StringBuilder();
-
-                        sbTemp.Append(Address);
-                        sbTemp.Append(",");
-
-                        if (strsParameter != null)
-                        {
-                            for (int i = 0; i < strsParameter.Length; i++)
-                            {
-                                sbTemp.Append(strsParameter[i].ToString().Equals("Empty") ? string.Empty : strsParameter[i].ToString());
-                                sbTemp.Append(",");
-                            }
-                        }
-
-                        strCommandFormat = container.StringFormat(dtTemp.Rows[0]["code_format"].ToString(), sbTemp.ToString().TrimEnd(',').Split(','));
-
-                        #endregion
-
-                        break;
-
-                    default:
-                        throw new NotImplementedException();
-                }
-
-                strCommand = strCommandFormat + strCommandFormatParameter;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-
+            string commandStr = "";
             switch (Supplier)
             {
                 case "SANWA":
-                case "ATEL":
                 case "ATEL_NEW":
-                    strCommand = strCommand + "\r";
+                    commandStr = "${0}{1}GET:PNSTS:{2}";
+                    commandStr = string.Format(commandStr, Address, Sequence, arm) + EndCode();
                     break;
-
-                case "KAWASAKI":
-                    strCommand = strCommand + "\r\n";
-                    break;
+                default:
+                    throw new NotSupportedException();
             }
-
-            return strCommand;
+            return commandStr;
         }
+
+        
 
         public string KawasakiCheckSum(string Parameter)
         {
@@ -1787,44 +1556,6 @@ namespace SANWA.Utility
             return strCheckSum;
         }
 
-        /// <summary>
-        /// ATEL Macro Script
-        /// </summary>
-        /// <param name="Address"></param>
-        /// <param name="CommandType"></param>
-        /// <param name="Arm"></param>
-        /// <param name="Point"></param>
-        /// <param name="Slot"></param>
-        /// <returns></returns>
-        private string GetMacroValue(string Address, string CommandType, string Arm, string Point, string Slot)
-        {
-            string strMsg = string.Empty;
-
-            try
-            {
-                var query = (from a in dtRobotCommand.AsEnumerable()
-                             where a.Field<string>("node_type") == "ROBOT"
-                                && a.Field<string>("vendor") == Supplier
-                                && a.Field<string>("code_type") == CommandType
-                                && a.Field<string>("Parameter_ID") == Point
-                                && a.Field<int>("Parameter_Order") == Convert.ToInt32(Slot)
-                             select a).ToList();
-
-                if (query.Count > 0)
-                {
-                    strMsg = query[0]["code_order"].ToString();
-                }
-                else
-                {
-                    throw new RowNotInTableException();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-
-            return strMsg;
-        }
+      
     }
 }
