@@ -34,6 +34,10 @@ namespace SANWA.Utility.Config
             }
             return Content;
         }
-
+        public void Save()
+        {
+            ConfigTool<SystemConfig> SysCfg = new ConfigTool<SystemConfig>();
+            SysCfg.WriteFile("config/SystemConfig.json", this);
+        }
     }
 }
