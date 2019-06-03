@@ -52,6 +52,7 @@ namespace SANWA.Utility.Config
         //aligner_speed: 1~100
         public string aligner1_angle { get; set; }
         public string aligner2_angle { get; set; }
+        public string notch_angle { get; set; }
 
         ////ocr_config
         //public string ocr1_config { get; set; }

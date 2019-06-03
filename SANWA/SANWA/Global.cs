@@ -26,8 +26,10 @@ namespace SANWA
             "   FROM config_controller_setting " +
             "  WHERE equipment_model_id = '" + SystemConfig.Get().SystemMode + "'; ";
         private static readonly string CONFIG_DIO_SQL =
-            " SELECT dioname as dioname_r, address as address, parameter as parameter, type as type, error_code " +
-            "   FROM config_dio ; ";
+            " SELECT dioname as dioname_r,type as type_r, address as address_r,  parameter as  parameter_r, error_code as error_code_r, abnormal " +
+            "   FROM config_dio_point " +
+            "  WHERE equipment_model_id = '" + SystemConfig.Get().SystemMode + "' " +
+            "  ORDER BY dioname,type, address; ";
         public static string Config_sql(Config_Type config_Type)
         {
             string sql = "";
