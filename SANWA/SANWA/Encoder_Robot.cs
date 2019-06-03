@@ -1183,6 +1183,15 @@ namespace SANWA.Utility
             {
                 case "SANWA":
                 case "ATEL_NEW":
+                    vl = Convert.ToInt16(vl).ToString();
+                    if (vl.Equals("0"))
+                    {
+                        vl = "1";
+                    }
+                    else if (vl.Equals("100"))
+                    {
+                        vl = "0";
+                    }
                     commandStr = "${0}{1}SET:SP___:{2}";
                     commandStr = string.Format(commandStr, Address, Sequence, vl) + EndCode();
                     break;
