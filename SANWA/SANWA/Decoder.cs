@@ -462,7 +462,7 @@ namespace SANWA.Utility
                 each.OrgMsg = Msg;
                 each.NodeAdr = Encoding.Default.GetString(t, 3, 2);
                 string contentStr = Encoding.Default.GetString(t, 5, t.Length - 5 - 3).Replace(";", "").Trim();
-
+                contentStr.Replace("/INTER/","/");
                 string[] content = contentStr.Split(':', '/');
 
                 for (int i = 0; i < content.Length; i++)
