@@ -24,6 +24,8 @@ namespace SANWA.Utility.Config
         public bool FakeData { get; set; }
         public string AdminPassword { get; set; }
         public string CurrentRecipe { get; set; }
+        public string EquipmentID { get; set; }
+        public string FoupTxfLogPath { get; set; }
 
         public static SystemConfig Get()
         {
