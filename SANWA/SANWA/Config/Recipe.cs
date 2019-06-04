@@ -54,6 +54,14 @@ namespace SANWA.Utility.Config
         public string aligner2_angle { get; set; }
         public string notch_angle { get; set; }
 
+        public string ocr_ttl_config { get; set; }
+        public Boolean is_use_ocr_ttl { get; set; }
+        public string ocr_t7_config { get; set; }
+        public Boolean is_use_ocr_t7 { get; set; }
+        public string ocr_m12_config { get; set; }
+        public Boolean is_use_ocr_m12 { get; set; }
+        public string ocr_type { get; set; }
+
         ////ocr_config
         //public string ocr1_config { get; set; }
         //public string ocr2_config { get; set; }
