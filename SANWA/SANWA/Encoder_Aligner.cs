@@ -111,7 +111,7 @@ namespace SANWA.Utility
                 case "SANWA":
 
                     commandStr = "${0}{1}CMD:ALIGN:{2},{3},{4},{5}";
-                    commandStr = string.Format(commandStr, Address, Sequence, angle, notch, ZAxis, mode);
+                    commandStr = string.Format(commandStr, Address, Sequence, angle.PadLeft(3, '0').PadRight(6, '0'), notch, ZAxis, mode);
                     break;
                 default:
                     throw new NotSupportedException();
