@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace SANWA.Utility.Config
 {
     public class Recipe
     {
+        private static readonly ILog logger = LogManager.GetLogger(typeof(Recipe));
         //id
         public string recipe_id { get; set; }
         public string recipe_name { get; set; }
@@ -120,6 +122,24 @@ namespace SANWA.Utility.Config
             {
                 ConfigTool<Recipe> SysCfg = new ConfigTool<Recipe>();
                 SysCfg.WriteFile("recipe/" + fileName + ".json", recipe);
+            }
+        }
+        public static Boolean Delete(string fileName)
+        {
+            try
+            {
+                string date = System.DateTime.Now.ToString("yyyyMMdd");
+                string time = System.DateTime.Now.ToString("HHmmss");
+
+                string oldName = "recipe/" + fileName + ".json";
+                string newName = "recipe/" + fileName + "_" + date + "_" + time + ".del";
+                System.IO.File.Move(oldName, newName);
+                return true;
+            }
+            catch (Exception e)
+            {
+                logger.Error(e.Message + " " + e.StackTrace);
+                return false;
             }
         }
     }
