@@ -22,6 +22,8 @@ namespace SANWA.Utility.Config
         public int EFEMInterfaceConn_Port { get; set; }
         public bool SaftyCheckByPass { get; set; }
         public string AdminPassword { get; set; }
+        public string CurrentRecipe { get; set; }
+        public bool FakeData { get; set; }
 
         public static SystemConfig Get()
         {
