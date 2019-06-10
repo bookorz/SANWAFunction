@@ -54,9 +54,46 @@ namespace SANWA.Utility
                         result = SmartTagCodeAnalysis(Message);
 
                         break;
+                    case "ACDT":
+                        result = ACDTCodeAnalysis(Message);
+
+                        break;
                     default:
                         throw new NotImplementedException();
 
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+
+            return result;
+        }
+
+        private List<ReturnMessage> ACDTCodeAnalysis(string Message)
+        {
+            List<ReturnMessage> result;
+            string[] msgAry;
+
+            try
+            {
+                result = new List<ReturnMessage>();
+                msgAry = Message.Split(new[] { "03" },StringSplitOptions.None);
+
+                foreach (string Msg in msgAry)
+                {
+                    if (Msg.Trim().Equals(""))
+                    {
+                        continue;
+                    }
+                    ReturnMessage each = new ReturnMessage();
+                    each.OrgMsg = Msg.Substring(Msg.IndexOf("$"));
+
+                    each.NodeAdr = each.OrgMsg[1].ToString();
+                    string[] content = each.OrgMsg.Replace("\r", "").Replace("\n", "").Substring(2).Split(':');
+                    
+                    result.Add(each);
                 }
             }
             catch (Exception ex)

@@ -75,6 +75,7 @@
     <Compile Include="config_controllers.cs" />
     <Compile Include="DBUtil.cs" />
     <Compile Include="Encoder.cs" />
+    <Compile Include="EncoderFFU.cs" />
     <Compile Include="Encoder_Aligner.cs" />
     <Compile Include="ContainerUI.cs" />
     <Compile Include="ControllingUI.cs" />
