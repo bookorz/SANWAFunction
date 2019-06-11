@@ -74,27 +74,30 @@ namespace SANWA.Utility
         private List<ReturnMessage> ACDTCodeAnalysis(string Message)
         {
             List<ReturnMessage> result;
-            string[] msgAry;
+            byte[] msgAry;
 
             try
             {
                 result = new List<ReturnMessage>();
-                msgAry = Message.Split(new[] { "03" },StringSplitOptions.None);
-
-                foreach (string Msg in msgAry)
+                ReturnMessage each = new ReturnMessage();
+                msgAry = Encoding.ASCII.GetBytes(Message);
+                if(msgAry[1]==21|| msgAry[1]==105)
                 {
-                    if (Msg.Trim().Equals(""))
+                    each.Type = ReturnMessage.ReturnType.Excuted;
+                    if(msgAry[1]==105 && msgAry.Length >= 8)
                     {
-                        continue;
+                        each.Value = (Convert.ToInt32(msgAry[4]) * 10).ToString();
                     }
-                    ReturnMessage each = new ReturnMessage();
-                    each.OrgMsg = Msg.Substring(Msg.IndexOf("$"));
-
-                    each.NodeAdr = each.OrgMsg[1].ToString();
-                    string[] content = each.OrgMsg.Replace("\r", "").Replace("\n", "").Substring(2).Split(':');
-                    
-                    result.Add(each);
+                    each.NodeAdr = "1";
                 }
+
+                
+                each.OrgMsg = Message;
+
+                
+
+                result.Add(each);
+
             }
             catch (Exception ex)
             {
@@ -499,7 +502,7 @@ namespace SANWA.Utility
                 each.OrgMsg = Msg;
                 each.NodeAdr = Encoding.Default.GetString(t, 3, 2);
                 string contentStr = Encoding.Default.GetString(t, 5, t.Length - 5 - 3).Replace(";", "").Trim();
-                contentStr.Replace("/INTER/","/");
+                contentStr.Replace("/INTER/", "/");
                 string[] content = contentStr.Split(':', '/');
 
                 for (int i = 0; i < content.Length; i++)
@@ -648,7 +651,7 @@ namespace SANWA.Utility
                     {
                         switch (each.CommandType)
                         {
-                            
+
                             case "FSD2":
                                 switch (content[i].Substring(content[i].IndexOf("=") + 1))
                                 {
@@ -678,7 +681,7 @@ namespace SANWA.Utility
                                 each.Type = ReturnMessage.ReturnType.Excuted;
                                 break;
                             default:
-                                
+
                                 switch (i)
                                 {
                                     case 0:
@@ -693,7 +696,7 @@ namespace SANWA.Utility
                                             if (param.Length >= 2)
                                             {
                                                 switch (param[0])
-                                                {                                                    
+                                                {
                                                     case "P30":
                                                         each.Command = "GetSlotOffset";
                                                         break;
@@ -712,7 +715,7 @@ namespace SANWA.Utility
                                                 }
                                                 each.Value = param[1];
                                             }
-                                           
+
                                         }
                                         else
                                         {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SANWA
 {
-    class EncoderFFU
+    public class EncoderFFU
     {
         private string Supplier;
 
@@ -26,6 +26,7 @@ namespace SANWA
                 throw new Exception(ex.ToString());
             }
         }
+        
        
         public string SetSpeed(string Address, string Value)
         {
@@ -33,11 +34,16 @@ namespace SANWA
             switch (Supplier)
             {
                 case "ACDT":
+                    byte[] cmdAry = new byte[7];
+                    cmdAry[0] = Convert.ToByte("2", 16);//start
 
-                    commandStr = "69 02 {0} {1}";
-                    commandStr = string.Format(commandStr, Address,(Convert.ToInt32(Value,16)/10).ToString("X").PadLeft(2,'0'));
-                    commandStr = commandStr + " " + CheckSum(commandStr);
-                    commandStr = "02 " + commandStr + " 03";
+                    cmdAry[1] = Convert.ToByte("69", 16);
+                    cmdAry[2] = Convert.ToByte("2", 16);//len
+                    cmdAry[3] = Convert.ToByte(Address, 16);//id
+                    cmdAry[4] = Convert.ToByte(Convert.ToInt32(Value) / 10);//speed
+                    cmdAry[5] = ACDTCheckSum(cmdAry,1,4);
+                    cmdAry[6] = 3;//end
+                    commandStr = Encoding.Default.GetString(cmdAry, 0, cmdAry.Length);
                     break;
                 default:
                     throw new NotSupportedException();
@@ -53,10 +59,16 @@ namespace SANWA
             {
                 case "ACDT":
 
-                    commandStr = "68 01 {0}";
-                    commandStr = string.Format(commandStr, Address);
-                    commandStr = commandStr + " " + CheckSum(commandStr);
-                    commandStr = "02 " + commandStr + " 03";
+                    byte[] cmdAry = new byte[6];
+                    cmdAry[0] = Convert.ToByte("2", 16);//start
+
+                    cmdAry[1] = Convert.ToByte("68", 16);
+                    cmdAry[2] = Convert.ToByte("1", 16);//len
+                    cmdAry[3] = Convert.ToByte(Address, 16);//id
+                    cmdAry[4] = ACDTCheckSum(cmdAry, 1, 3);
+
+                    cmdAry[5] = 3;//end
+                    commandStr = Encoding.Default.GetString(cmdAry, 0, cmdAry.Length);
                     break;
                 default:
                     throw new NotSupportedException();
@@ -65,20 +77,13 @@ namespace SANWA
             return commandStr;
         }
 
-        private string CheckSum(string commandStr)
+        private byte ACDTCheckSum(byte[] commandAry, int startIdx, int endIdx)
         {
-            string result = "";
-            string[] ary = commandStr.Split(' ');
-            int sum = 0;
-            foreach(string each in ary)
+            byte result = 0;
+            for(int i = startIdx; i <= endIdx; i++)
             {
-                if (!each.Trim().Equals(""))
-                {
-                    sum += Convert.ToInt32(each,16);
-                }
+                result += commandAry[i];
             }
-            result = sum.ToString("X");
-            result = result.Substring(result.Length-2,2);
             return result;
         }
     }

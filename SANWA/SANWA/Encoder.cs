@@ -13,6 +13,7 @@ namespace SANWA.Utility
         public EncoderOCR OCR;
         public EncoderLoadPort LoadPort;
         public Encoder_SmartTag SmartTag;
+        public EncoderFFU FFU;
 
         private string Supplier;
      
@@ -34,6 +35,7 @@ namespace SANWA.Utility
                 Robot = new EncoderRobot(Supplier);
                 OCR = new EncoderOCR(Supplier);
                 LoadPort = new EncoderLoadPort(Supplier, EncoderLoadPort.CommandMode.TDK_A);
+                FFU = new EncoderFFU(Supplier);
             }
             catch (Exception ex)
             {
