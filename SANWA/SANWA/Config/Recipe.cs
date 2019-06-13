@@ -104,10 +104,13 @@ namespace SANWA.Utility.Config
         public string manual_fin_unclamp { get; set; }
 
         //log_path
-         string log_path { get; set; }
+        public string log_path { get; set; }
 
         //equip_id
-        public string equip_id { get; set; }
+        //public string equip_id { get; set; }//20190613 移到 sysconfig
+
+        public string ffu_rpm_open { get; set; }
+        public string ffu_rpm_close { get; set; }
 
         public static Recipe Get(string fileName)
         {
