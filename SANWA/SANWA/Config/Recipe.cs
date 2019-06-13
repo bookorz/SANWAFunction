@@ -13,7 +13,8 @@ namespace SANWA.Utility.Config
         //id
         public string recipe_id { get; set; }
         public string recipe_name { get; set; }
-
+        public string motion_timeout { get; set; }
+        
         //port_type: Load, Unload, Both
         public string port1_type { get; set; }
         public string port2_type { get; set; }
