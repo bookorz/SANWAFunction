@@ -43,7 +43,7 @@ namespace SANWA
                     cmdAry[4] = Convert.ToByte(Convert.ToInt32(Value) / 10);//speed
                     cmdAry[5] = ACDTCheckSum(cmdAry,1,4);
                     cmdAry[6] = 3;//end
-                    commandStr = Encoding.Default.GetString(cmdAry, 0, cmdAry.Length);
+                    commandStr = BitConverter.ToString(cmdAry);
                     break;
                 default:
                     throw new NotSupportedException();
@@ -68,7 +68,7 @@ namespace SANWA
                     cmdAry[4] = ACDTCheckSum(cmdAry, 1, 3);
 
                     cmdAry[5] = 3;//end
-                    commandStr = Encoding.Default.GetString(cmdAry, 0, cmdAry.Length);
+                    commandStr = BitConverter.ToString(cmdAry);
                     break;
                 default:
                     throw new NotSupportedException();

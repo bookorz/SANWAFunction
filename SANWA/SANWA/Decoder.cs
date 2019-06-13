@@ -80,8 +80,47 @@ namespace SANWA.Utility
             {
                 result = new List<ReturnMessage>();
                 ReturnMessage each = new ReturnMessage();
-                msgAry = Encoding.ASCII.GetBytes(Message);
-                if(msgAry[1]==21|| msgAry[1]==105)
+
+                string hexString = Message.ToString().Replace("-", "");
+                msgAry = new byte[hexString.Length / 2];
+                for (int i = 0; i < hexString.Length; i = i + 2)
+                {
+                    //每2位16進位數字轉換為一個10進位整數
+                    msgAry[i / 2] = Convert.ToByte(hexString.Substring(i, 2), 16);
+                }
+
+
+                //msgAry = Encoding.ASCII.GetBytes(Message);
+                switch (msgAry[1])
+                {
+                    case 21://ack
+                        each.Type = ReturnMessage.ReturnType.Excuted;
+                        break;
+                    case 22://nak
+                        each.Type = ReturnMessage.ReturnType.Error;
+                        each.Value = "CheckSumError";
+                        break;
+                    case 105://ack with value
+                        switch (msgAry[5])
+                        {
+                            case 0:
+                                each.Type = ReturnMessage.ReturnType.Excuted;
+                                each.Value = (Convert.ToInt32(msgAry[4]) * 10).ToString();
+                                break;
+                            case 1:
+                                each.Type = ReturnMessage.ReturnType.Error;
+                                each.Value = "OverLoad";
+                                break;
+                            case 2:
+                                each.Type = ReturnMessage.ReturnType.Error;
+                                each.Value = "HighTemperature";
+                                break;
+                        }
+                        
+                        break;
+
+                }
+                if (msgAry[1]==21|| msgAry[1]==105)
                 {
                     each.Type = ReturnMessage.ReturnType.Excuted;
                     if(msgAry[1]==105 && msgAry.Length >= 8)
