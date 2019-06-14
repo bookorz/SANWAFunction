@@ -113,6 +113,11 @@ namespace SANWA.Utility.Config
         public string ffu_rpm_open { get; set; }
         public string ffu_rpm_close { get; set; }
 
+        public Boolean is_use_double_arm { get; set; }
+        public Boolean is_use_r_arm { get; set; }
+        public Boolean is_use_l_arm { get; set; }
+
+
         public static Recipe Get(string fileName)
         {
             Recipe Content;
